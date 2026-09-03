@@ -4,7 +4,7 @@ function verificarToken(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    return res.status(401).json({ mensagem: 'Token nao informado.' });
+    return res.status(401).json({ mensagem: 'Token não informado.' });
   }
 
   const [, token] = authHeader.split(' ');

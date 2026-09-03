@@ -1,3 +1,4 @@
+```vue
 <template>
   <div class="login-page">
     <!-- Formas coloridas de fundo -->
@@ -34,6 +35,19 @@
           {{ carregando ? 'Entrando...' : 'Entrar' }}
         </button>
       </form>
+
+      <!-- Cadastro -->
+      <div class="cadastro-area">
+        <span>Não possui uma conta?</span>
+
+        <button
+          type="button"
+          class="btn-cadastro"
+          @click="router.push('/cadastro')"
+        >
+          Criar cadastro
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -47,20 +61,25 @@ const email = ref('');
 const senha = ref('');
 const erro = ref('');
 const carregando = ref(false);
+
 const router = useRouter();
 
 async function entrar() {
   erro.value = '';
   carregando.value = true;
+
   try {
     const resposta = await api.post('/auth/login', {
       email: email.value,
       senha: senha.value,
     });
-      localStorage.setItem('voleitcc_token', resposta.data.token);
+
+    localStorage.setItem('voleitcc_token', resposta.data.token);
+
     router.push('/inicio');
   } catch (e) {
-    erro.value = e.response?.data?.mensagem || 'Nao foi possivel entrar.';
+    erro.value =
+      e.response?.data?.mensagem || 'Não foi possível entrar.';
   } finally {
     carregando.value = false;
   }
@@ -74,7 +93,12 @@ async function entrar() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, #0f2a63 0%, #163b7c 55%, #1e4fa3 100%);
+  background: linear-gradient(
+    160deg,
+    #0f2a63 0%,
+    #163b7c 55%,
+    #1e4fa3 100%
+  );
   overflow: hidden;
 }
 
@@ -185,4 +209,34 @@ button:disabled {
   opacity: 0.7;
   cursor: default;
 }
+
+/* Área de cadastro */
+.cadastro-area {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #eee;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+
+  color: #666;
+  font-size: 13px;
+}
+
+.btn-cadastro {
+  margin-top: 0;
+  padding: 0;
+  background: transparent;
+  color: #0f2a63;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.btn-cadastro:hover {
+  background: transparent;
+  color: #f0b429;
+}
 </style>
+```
