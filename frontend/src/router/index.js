@@ -4,6 +4,7 @@ import CadastroTimes from '../views/CadastroTimes.vue';
 import Inicio from '../views/Inicio.vue';
 import ListaTimes from '../views/ListaTimes.vue';
 import Campeonatos from '../views/Campeonatos.vue';
+import CadastroCampeonato from '../views/CadastroCampeonato.vue';
 
 const routes = [
   {
@@ -28,8 +29,13 @@ const routes = [
   },
   {
     path: '/campeonatos',
-    name: 'cadastro-campeonato',
+    name: 'campeonatos',
     component: Campeonatos,
+  },
+  {
+    path: '/campeonatos/cadastro',
+    name: 'cadastro-campeonato',
+    component: CadastroCampeonato,
   },
   // As proximas telas (cadastro de jogadores, partidas)
   // entram aqui como novas rotas conforme forem criadas.
