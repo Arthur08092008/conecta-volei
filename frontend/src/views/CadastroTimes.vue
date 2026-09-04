@@ -110,13 +110,24 @@
 
         <p v-if="erro" class="erro">{{ erro }}</p>
 
+<<<<<<< HEAD
         <button type="submit" class="btn-principal">Cadastrar time</button>
+=======
+        <button type="submit" class="btn-principal" :disabled="carregando">
+          {{ carregando ? "Cadastrando..." : "Cadastrar time" }}
+        </button>
+>>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
       </form>
     </div>
   </div>
 </template>
 
 <script>
+<<<<<<< HEAD
+=======
+import api from "../services/api";
+
+>>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
 export default {
   name: "CadastroTimes",
   data() {
@@ -131,20 +142,41 @@ export default {
       },
       enviado: false,
       erro: "",
+<<<<<<< HEAD
     };
   },
   methods: {
     handleSubmit() {
+=======
+      carregando: false,
+    };
+  },
+  methods: {
+    async handleSubmit() {
+>>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
       if (!this.form.nome.trim() || !this.form.cidade.trim() || !this.form.tecnico.trim()) {
         this.erro = "Preencha nome do time, cidade e técnico responsável.";
         return;
       }
       this.erro = "";
+<<<<<<< HEAD
 
       // TODO: quando o backend de times estiver pronto, trocar por:
       // await api.post('/times', this.form)
 
       this.enviado = true;
+=======
+      this.carregando = true;
+
+      try {
+        await api.post("/times", this.form);
+        this.enviado = true;
+      } catch (e) {
+        this.erro = e.response?.data?.mensagem || "Não foi possível cadastrar o time.";
+      } finally {
+        this.carregando = false;
+      }
+>>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
     },
     resetar() {
       this.form = {

@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 ```vue
+=======
+>>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
 <template>
   <div class="login-page">
     <!-- Formas coloridas de fundo -->
@@ -35,6 +38,7 @@
           {{ carregando ? 'Entrando...' : 'Entrar' }}
         </button>
       </form>
+<<<<<<< HEAD
 
       <!-- Cadastro -->
       <div class="cadastro-area">
@@ -48,6 +52,8 @@
           Criar cadastro
         </button>
       </div>
+=======
+>>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
     </div>
   </div>
 </template>
@@ -61,18 +67,25 @@ const email = ref('');
 const senha = ref('');
 const erro = ref('');
 const carregando = ref(false);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
 const router = useRouter();
 
 async function entrar() {
   erro.value = '';
   carregando.value = true;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
   try {
     const resposta = await api.post('/auth/login', {
       email: email.value,
       senha: senha.value,
     });
+<<<<<<< HEAD
 
     localStorage.setItem('voleitcc_token', resposta.data.token);
 
@@ -80,6 +93,12 @@ async function entrar() {
   } catch (e) {
     erro.value =
       e.response?.data?.mensagem || 'Não foi possível entrar.';
+=======
+      localStorage.setItem('voleitcc_token', resposta.data.token);
+    router.push('/inicio');
+  } catch (e) {
+    erro.value = e.response?.data?.mensagem || 'Nao foi possivel entrar.';
+>>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
   } finally {
     carregando.value = false;
   }
@@ -93,12 +112,16 @@ async function entrar() {
   display: flex;
   align-items: center;
   justify-content: center;
+<<<<<<< HEAD
   background: linear-gradient(
     160deg,
     #0f2a63 0%,
     #163b7c 55%,
     #1e4fa3 100%
   );
+=======
+  background: linear-gradient(160deg, #0f2a63 0%, #163b7c 55%, #1e4fa3 100%);
+>>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
   overflow: hidden;
 }
 
@@ -209,6 +232,7 @@ button:disabled {
   opacity: 0.7;
   cursor: default;
 }
+<<<<<<< HEAD
 
 /* Área de cadastro */
 .cadastro-area {
@@ -240,3 +264,6 @@ button:disabled {
 }
 </style>
 ```
+=======
+</style>
+>>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693

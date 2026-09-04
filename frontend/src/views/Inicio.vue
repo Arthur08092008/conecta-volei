@@ -6,7 +6,11 @@
         <div class="logo-badge">
           <img src="../assets/logo.jpeg" alt="Logo VoleiTCC" />
         </div>
+<<<<<<< HEAD
         <span>VoleiApp</span>
+=======
+        <span>Conecta Volei</span>
+>>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
       </div>
 
       <nav class="sidebar-nav">
