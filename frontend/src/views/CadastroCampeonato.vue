@@ -1,4 +1,5 @@
 <template>
+  <Sidebar/>
   <div class="fundo">
     <div class="card">
       <div class="icone">
@@ -92,6 +93,8 @@
 </template>
 
 <script>
+import Sidebar from '../components/Sidebar.vue';
+
 export default {
   name: 'CadastroCampeonato',
   data() {

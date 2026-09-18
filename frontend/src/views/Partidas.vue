@@ -1,290 +1,332 @@
 <template>
-  <div class="partidas-page">
+  <div class="partidas-layout">
 
-    <!-- =========================
-         TELA DE PARTIDAS
-    ========================== -->
+    <Sidebar />
 
-    <div v-if="!criandoPartida">
+    <main class="partidas-content">
 
-      <div class="page-header">
-        <div>
-          <h1>Partidas</h1>
-          <p>{{ partidas.length }} partida(s) cadastrada(s)</p>
+      <!-- =========================
+           LISTA DE PARTIDAS
+      ========================== -->
+      <template v-if="!criandoPartida">
+
+        <div class="page-header">
+          <div>
+            <h1>Partidas</h1>
+            <p>{{ partidas.length }} partida(s) cadastrada(s)</p>
+          </div>
+
+          <button
+            class="btn-primary"
+            @click="abrirCriacao"
+          >
+            + Nova partida
+          </button>
         </div>
 
-        <!-- BOTÃO NOVA PARTIDA -->
-        <button
-          class="btn-nova-partida"
-          @click="abrirCriacao"
-        >
-          + Nova partida
-        </button>
-       </div>
-
-
-      <div class="partidas-container">
-
-        <!-- QUANDO NÃO EXISTIR PARTIDA -->
+        <!-- CARREGANDO -->
         <div
-          v-if="partidas.length === 0"
-          class="sem-partidas"
+          v-if="carregando"
+          class="mensagem"
+        >
+          Carregando partidas...
+        </div>
+
+        <!-- ERRO -->
+        <div
+          v-else-if="erro"
+          class="mensagem erro"
+        >
+          {{ erro }}
+        </div>
+
+        <!-- NENHUMA PARTIDA -->
+        <div
+          v-else-if="partidas.length === 0"
+          class="empty-state"
+        >
+          <div class="empty-icon">
+            📅
+          </div>
+
+          <h2>Nenhuma partida cadastrada</h2>
+
+          <p>
+            Cadastre a primeira partida para começar.
+          </p>
+
+          <button
+            class="btn-primary"
+            @click="abrirCriacao"
+          >
+            Nova partida
+          </button>
+        </div>
+
+        <!-- LISTA DE PARTIDAS -->
+        <div
+          v-else
+          class="partidas-list"
         >
 
-          <div class="mensagem-vazia">
+          <div
+            v-for="partida in partidas"
+            :key="partida.id"
+            class="partida-card"
+          >
 
-            <div class="icone-bola">
-              🏐
+            <div class="partida-info">
+
+              <div class="partida-times">
+
+                <div class="time">
+                  <span class="time-label">
+                    Time A
+                  </span>
+
+                  <strong>
+                    {{ nomeDoTime(partida.time_a) }}
+                  </strong>
+                </div>
+
+                <div class="vs">
+                  VS
+                </div>
+
+                <div class="time">
+                  <span class="time-label">
+                    Time B
+                  </span>
+
+                  <strong>
+                    {{ nomeDoTime(partida.time_b) }}
+                  </strong>
+                </div>
+
+              </div>
+
+              <div class="partida-detalhes">
+
+                <span>
+                  📅 {{ formatarData(partida.data) }}
+                </span>
+
+                <span>
+                  🕐 {{ partida.horario }}
+                </span>
+
+                <span>
+                  📍 {{ partida.local }}
+                </span>
+
+              </div>
+
             </div>
 
-            <h2>Nenhuma partida cadastrada</h2>
-
-            <p>
-              Clique em "Nova partida" para cadastrar uma partida.
-            </p>
-
             <button
-              class="btn-criar"
-              @click="abrirCriacao"
+              class="btn-delete"
+              @click="excluirPartida(partida.id)"
             >
-              + Criar nova partida
+              Excluir
             </button>
 
           </div>
 
         </div>
 
+      </template>
 
-        <!-- PARTIDAS CADASTRADAS -->
-        <div
-          v-else
-          v-for="partida in partidas"
-          :key="partida.id"
-          class="partida-card"
-        >
 
+      <!-- =========================
+           NOVA PARTIDA
+      ========================== -->
+      <template v-else>
+
+        <div class="page-header">
           <div>
-            <strong>{{ partida.timeA }}</strong>
+            <h1>Nova partida</h1>
 
-            <span class="versus">
-              x
-            </span>
-
-            <strong>{{ partida.timeB }}</strong>
+            <p>
+              Cadastre uma nova partida
+            </p>
           </div>
-
-          <div class="partida-info">
-
-            <span>
-              📅 {{ partida.data }}
-            </span>
-
-            <span>
-              🕐 {{ partida.horario }}
-            </span>
-
-            <span>
-              📍 {{ partida.local }}
-            </span>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <!-- =========================
-         TELA DE CRIAR PARTIDA
-    ========================== -->
-
-    <div v-else class="criar-partida-page">
-
-      <div class="criar-header">
-
-        <div>
-
-          <h1>Nova partida</h1>
-
-          <p>
-            Cadastre uma nova partida de vôlei
-          </p>
-
-        </div>
-
-        <!-- VOLTAR -->
-        <button
-          class="btn-voltar"
-          @click="cancelarCriacao"
-        >
-          ← Voltar
-        </button>
-
-      </div>
-
-
-      <!-- FORMULÁRIO -->
-
-      <div class="form-container">
-
-        <div class="form-titulo">
-
-          <h2>Dados da partida</h2>
-
-          <p>
-            Preencha as informações abaixo.
-          </p>
-
-        </div>
-
-
-        <!-- TIMES -->
-
-        <div class="times-container">
-
-          <!-- TIME A -->
-
-          <div class="campo">
-
-            <label>
-              Time A
-            </label>
-
-            <select v-model="novaPartida.timeA">
-
-              <option value="">
-                Selecione o time
-              </option>
-
-              <option value="Time Azul">
-                Time Azul
-              </option>
-
-              <option value="Time Amarelo">
-                Time Amarelo
-              </option>
-
-              <option value="Time Vermelho">
-                Time Vermelho
-              </option>
-
-            </select>
-
-          </div>
-
-
-          <div class="vs">
-            X
-          </div>
-
-
-          <!-- TIME B -->
-
-          <div class="campo">
-
-            <label>
-              Time B
-            </label>
-
-            <select v-model="novaPartida.timeB">
-
-              <option value="">
-                Selecione o time
-              </option>
-
-              <option value="Time Azul">
-                Time Azul
-              </option>
-
-              <option value="Time Amarelo">
-                Time Amarelo
-              </option>
-
-              <option value="Time Vermelho">
-                Time Vermelho
-              </option>
-
-            </select>
-
-          </div>
-
-        </div>
-
-
-        <!-- DATA -->
-
-        <div class="campo">
-
-          <label>
-            Data da partida
-          </label>
-
-          <input
-            type="date"
-            v-model="novaPartida.data"
-          >
-
-        </div>
-
-
-        <!-- HORÁRIO -->
-
-        <div class="campo">
-
-          <label>
-            Horário
-          </label>
-
-          <input
-            type="time"
-            v-model="novaPartida.horario"
-          >
-
-        </div>
-
-
-        <!-- LOCAL -->
-
-        <div class="campo">
-
-          <label>
-            Local da partida
-          </label>
-
-          <input
-            type="text"
-            v-model="novaPartida.local"
-            placeholder="Ex.: Quadra da escola"
-          >
-
-        </div>
-
-
-        <!-- BOTÕES -->
-
-        <div class="form-botoes">
 
           <button
-            class="btn-cancelar"
+            class="btn-secondary"
             @click="cancelarCriacao"
           >
-            Cancelar
+            Voltar
           </button>
-
-          <button
-            class="btn-salvar"
-            @click="criarPartida"
-          >
-            Criar partida
-          </button>
-
         </div>
 
-      </div>
 
-    </div>
+        <!-- FORMULÁRIO -->
+        <form
+          class="form-card"
+          @submit.prevent="criarPartida"
+        >
+
+          <!-- =========================
+               TIMES
+          ========================== -->
+          <div class="form-row">
+
+            <!-- TIME A -->
+            <div class="form-group">
+
+              <label for="timeA">
+                Time A
+              </label>
+
+              <select
+                id="timeA"
+                v-model="novaPartida.timeA"
+              >
+                <option value="">
+                  Selecione o Time A
+                </option>
+
+                <option
+                  v-for="time in times"
+                  :key="time.id"
+                  :value="time.id"
+                >
+                  {{ time.nome }}
+                </option>
+              </select>
+
+            </div>
+
+
+            <div class="vs-form">
+              VS
+            </div>
+
+
+            <!-- TIME B -->
+            <div class="form-group">
+
+              <label for="timeB">
+                Time B
+              </label>
+
+              <select
+                id="timeB"
+                v-model="novaPartida.timeB"
+              >
+                <option value="">
+                  Selecione o Time B
+                </option>
+
+                <option
+                  v-for="time in times"
+                  :key="time.id"
+                  :value="time.id"
+                >
+                  {{ time.nome }}
+                </option>
+              </select>
+
+            </div>
+
+          </div>
+
+
+          <!-- =========================
+               DATA E HORÁRIO
+          ========================== -->
+          <div class="form-row">
+
+            <div class="form-group">
+
+              <label for="data">
+                Data
+              </label>
+
+              <input
+                id="data"
+                v-model="novaPartida.data"
+                type="date"
+              />
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label for="horario">
+                Horário
+              </label>
+
+              <input
+                id="horario"
+                v-model="novaPartida.horario"
+                type="time"
+              />
+
+            </div>
+
+          </div>
+
+
+          <!-- =========================
+               LOCAL
+          ========================== -->
+          <div class="form-group">
+
+            <label for="local">
+              Local
+            </label>
+
+            <input
+              id="local"
+              v-model="novaPartida.local"
+              type="text"
+              placeholder="Ex.: Ginásio Municipal"
+            />
+
+          </div>
+
+
+          <!-- ERRO -->
+          <div
+            v-if="erroFormulario"
+            class="form-erro"
+          >
+            {{ erroFormulario }}
+          </div>
+
+
+          <!-- BOTÕES -->
+          <div class="form-actions">
+
+            <button
+              type="button"
+              class="btn-secondary"
+              @click="cancelarCriacao"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              class="btn-primary"
+              :disabled="carregando"
+            >
+              {{
+                carregando
+                  ? 'Salvando...'
+                  : 'Cadastrar partida'
+              }}
+            </button>
+
+          </div>
+
+        </form>
+
+      </template>
+
+    </main>
 
   </div>
 </template>
@@ -292,698 +334,766 @@
 
 <script setup>
 
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import Sidebar from '../components/Sidebar.vue'
+import api from '../services/api'
 
 
-/* =================================
-   CONTROLE DA TELA
-================================= */
+// ==========================================
+// CONTROLE
+// ==========================================
 
 const criandoPartida = ref(false)
 
-
-/* =================================
-   PARTIDAS
-================================= */
-
 const partidas = ref([])
 
+const times = ref([])
 
-/* =================================
-   NOVA PARTIDA
-================================= */
+const carregando = ref(false)
+
+const erro = ref('')
+
+const erroFormulario = ref('')
+
+
+// ==========================================
+// NOVA PARTIDA
+// ==========================================
 
 const novaPartida = ref({
-
   timeA: '',
-
   timeB: '',
-
   data: '',
-
   horario: '',
-
   local: ''
-
 })
 
 
-/* =================================
-   ABRIR TELA DE CRIAÇÃO
-================================= */
+// ==========================================
+// BUSCAR TIMES
+// ==========================================
 
-function abrirCriacao() {
+async function carregarTimes() {
 
-  criandoPartida.value = true
+  try {
+
+    const resposta = await api.get('/times')
+
+    times.value = resposta.data
+
+    console.log(
+      'Times carregados:',
+      times.value
+    )
+
+  } catch (e) {
+
+    console.error(
+      'Erro ao buscar times:',
+      e
+    )
+
+    erro.value =
+      e.response?.data?.mensagem ||
+      'Não foi possível carregar os times.'
+
+  }
 
 }
 
 
-/* =================================
-   CANCELAR
-================================= */
+// ==========================================
+// BUSCAR PARTIDAS
+// ==========================================
+
+async function carregarPartidas() {
+
+  carregando.value = true
+  erro.value = ''
+
+  try {
+
+    const resposta = await api.get('/partidas')
+
+    partidas.value = resposta.data
+
+  } catch (e) {
+
+    console.error(
+      'Erro ao buscar partidas:',
+      e
+    )
+
+    erro.value =
+      e.response?.data?.mensagem ||
+      'Não foi possível carregar as partidas.'
+
+  } finally {
+
+    carregando.value = false
+
+  }
+
+}
+
+
+// ==========================================
+// PEGAR NOME DO TIME
+// ==========================================
+
+function nomeDoTime(id) {
+
+  const time = times.value.find(
+    time => Number(time.id) === Number(id)
+  )
+
+  if (time) {
+    return time.nome
+  }
+
+  return `Time #${id}`
+
+}
+
+
+// ==========================================
+// ABRIR CRIAÇÃO
+// ==========================================
+
+async function abrirCriacao() {
+
+  erroFormulario.value = ''
+
+  criandoPartida.value = true
+
+  await carregarTimes()
+
+}
+
+
+// ==========================================
+// CANCELAR
+// ==========================================
 
 function cancelarCriacao() {
 
   criandoPartida.value = false
 
-}
-
-
-/* =================================
-   CRIAR PARTIDA
-================================= */
-
-function criarPartida() {
-
-  // Verificar campos
-
-  if (
-    !novaPartida.value.timeA ||
-    !novaPartida.value.timeB ||
-    !novaPartida.value.data ||
-    !novaPartida.value.horario ||
-    !novaPartida.value.local
-  ) {
-
-    alert('Preencha todos os campos.')
-
-    return
-
-  }
-
-
-  // Não permite o mesmo time
-
-  if (
-    novaPartida.value.timeA ===
-    novaPartida.value.timeB
-  ) {
-
-    alert('Os times precisam ser diferentes.')
-
-    return
-
-  }
-
-
-  // Criar partida
-
-  const nova = {
-
-    id: Date.now(),
-
-    timeA: novaPartida.value.timeA,
-
-    timeB: novaPartida.value.timeB,
-
-    data: novaPartida.value.data,
-
-    horario: novaPartida.value.horario,
-
-    local: novaPartida.value.local
-
-  }
-
-
-  // Adicionar na lista
-
-  partidas.value.push(nova)
-
-
-  // Limpar formulário
+  erroFormulario.value = ''
 
   novaPartida.value = {
-
     timeA: '',
-
     timeB: '',
-
     data: '',
-
     horario: '',
-
     local: ''
+  }
+
+}
+
+
+// ==========================================
+// CRIAR PARTIDA
+// ==========================================
+
+async function criarPartida() {
+
+  erroFormulario.value = ''
+
+  const timeAId = Number(
+    novaPartida.value.timeA
+  )
+
+  const timeBId = Number(
+    novaPartida.value.timeB
+  )
+
+  const data =
+    novaPartida.value.data
+
+  const horario =
+    novaPartida.value.horario
+
+  const local =
+    String(
+      novaPartida.value.local || ''
+    ).trim()
+
+
+  // ==========================================
+  // VALIDAR TIME A
+  // ==========================================
+
+  if (!timeAId) {
+
+    erroFormulario.value =
+      'Selecione o Time A.'
+
+    return
 
   }
 
 
-  // Voltar para partidas
+  // ==========================================
+  // VALIDAR TIME B
+  // ==========================================
 
-  criandoPartida.value = false
+  if (!timeBId) {
+
+    erroFormulario.value =
+      'Selecione o Time B.'
+
+    return
+
+  }
+
+
+  // ==========================================
+  // TIMES IGUAIS
+  // ==========================================
+
+  if (timeAId === timeBId) {
+
+    erroFormulario.value =
+      'Os times precisam ser diferentes.'
+
+    return
+
+  }
+
+
+  // ==========================================
+  // VALIDAR DATA
+  // ==========================================
+
+  if (!data) {
+
+    erroFormulario.value =
+      'Selecione a data da partida.'
+
+    return
+
+  }
+
+
+  // ==========================================
+  // VALIDAR HORÁRIO
+  // ==========================================
+
+  if (!horario) {
+
+    erroFormulario.value =
+      'Informe o horário da partida.'
+
+    return
+
+  }
+
+
+  // ==========================================
+  // VALIDAR LOCAL
+  // ==========================================
+
+  if (!local) {
+
+    erroFormulario.value =
+      'Informe o local da partida.'
+
+    return
+
+  }
+
+
+  // ==========================================
+  // ENVIAR PARA O BACKEND
+  // ==========================================
+
+  try {
+
+    carregando.value = true
+
+    const dados = {
+      timeAId,
+      timeBId,
+      data,
+      horario,
+      local
+    }
+
+    console.log(
+      'Dados enviados para /partidas:',
+      dados
+    )
+
+    const resposta = await api.post(
+      '/partidas',
+      dados
+    )
+
+
+    console.log(
+      'Partida cadastrada:',
+      resposta.data
+    )
+
+
+    // ==========================================
+    // ATUALIZAR LISTA
+    // ==========================================
+
+    partidas.value.push(
+      resposta.data
+    )
+
+
+    // ==========================================
+    // LIMPAR
+    // ==========================================
+
+    novaPartida.value = {
+      timeA: '',
+      timeB: '',
+      data: '',
+      horario: '',
+      local: ''
+    }
+
+
+    erroFormulario.value = ''
+
+    criandoPartida.value = false
+
+  } catch (e) {
+
+    console.error(
+      'Erro ao criar partida:',
+      e
+    )
+
+    console.error(
+      'Resposta do servidor:',
+      e.response?.data
+    )
+
+    erroFormulario.value =
+      e.response?.data?.mensagem ||
+      'Não foi possível cadastrar a partida.'
+
+  } finally {
+
+    carregando.value = false
+
+  }
 
 }
+
+
+// ==========================================
+// EXCLUIR PARTIDA
+// ==========================================
+
+async function excluirPartida(id) {
+
+  const confirmar = confirm(
+    'Deseja realmente excluir esta partida?'
+  )
+
+  if (!confirmar) {
+    return
+  }
+
+
+  try {
+
+    await api.delete(
+      `/partidas/${id}`
+    )
+
+    partidas.value =
+      partidas.value.filter(
+        partida =>
+          partida.id !== id
+      )
+
+  } catch (e) {
+
+    console.error(
+      'Erro ao excluir partida:',
+      e
+    )
+
+    alert(
+      e.response?.data?.mensagem ||
+      'Não foi possível excluir a partida.'
+    )
+
+  }
+
+}
+
+
+// ==========================================
+// FORMATAR DATA
+// ==========================================
+
+function formatarData(data) {
+
+  if (!data) {
+    return ''
+  }
+
+  return new Date(data).toLocaleDateString(
+    'pt-BR',
+    {
+      timeZone: 'UTC'
+    }
+  )
+
+}
+
+
+// ==========================================
+// QUANDO ABRIR A PÁGINA
+// ==========================================
+
+onMounted(async () => {
+
+  await carregarTimes()
+
+  await carregarPartidas()
+
+})
 
 </script>
 
 
 <style scoped>
 
-.partidas-page {
-
-  padding: 40px 46px;
-
-  background: #f5f6fa;
-
+.partidas-layout {
+  display: flex;
   min-height: 100vh;
-
+  background: #f5f7fb;
 }
 
+.partidas-content {
+  flex: 1;
+  min-width: 0;
+  padding: 32px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
 
-/* =================================
-   CABEÇALHO
-================================= */
-
-.page-header,
-.criar-header {
-
+.page-header {
   display: flex;
-
   justify-content: space-between;
-
-  align-items: flex-start;
-
-  margin-bottom: 45px;
-
-}
-
-
-h1 {
-
-  margin: 0;
-
-  color: #0d2354;
-
-  font-size: 42px;
-
-  font-weight: 800;
-
-}
-
-
-.page-header p,
-.criar-header p {
-
-  margin-top: 8px;
-
-  color: #667085;
-
-  font-size: 20px;
-
-}
-
-
-/* =================================
-   BOTÃO NOVA PARTIDA
-================================= */
-
-.btn-nova-partida {
-
-  background: #0d2354;
-
-  color: white;
-
-  border: none;
-
-  border-radius: 15px;
-
-  padding: 18px 30px;
-
-  font-size: 20px;
-
-  font-weight: 700;
-
-  cursor: pointer;
-
-}
-
-
-.btn-nova-partida:hover {
-
-  background: #172f68;
-
-}
-
-
-/* =================================
-   CONTAINER PARTIDAS
-================================= */
-
-.partidas-container {
-
-  background: white;
-
-  border-radius: 22px;
-
-  min-height: 500px;
-
-  padding: 30px;
-
-  box-shadow:
-    0 2px 10px rgba(0, 0, 0, 0.03);
-
-}
-
-
-/* =================================
-   NENHUMA PARTIDA
-================================= */
-
-.sem-partidas {
-
-  display: flex;
-
   align-items: center;
-
-  justify-content: center;
-
-  min-height: 440px;
-
+  margin-bottom: 28px;
 }
 
-
-.mensagem-vazia {
-
-  text-align: center;
-
+.page-header h1 {
+  margin: 0 0 6px;
+  color: #0b1f4d;
+  font-size: 30px;
 }
 
-
-.icone-bola {
-
-  font-size: 60px;
-
-  margin-bottom: 15px;
-
-}
-
-
-.mensagem-vazia h2 {
-
-  color: #0d2354;
-
+.page-header p {
   margin: 0;
-
-  font-size: 25px;
-
+  color: #68738a;
+  font-size: 14px;
 }
 
 
-.mensagem-vazia p {
+/* ==========================================
+   BOTÕES
+========================================== */
 
-  color: #667085;
-
-  font-size: 17px;
-
-  margin: 10px 0 25px;
-
-}
-
-
-.btn-criar {
-
-  background: #f5b923;
-
-  color: #0d2354;
-
+.btn-primary {
   border: none;
-
-  border-radius: 10px;
-
-  padding: 13px 22px;
-
-  font-size: 16px;
-
+  border-radius: 9px;
+  padding: 12px 20px;
+  background: #f0b429;
+  color: #0b1f4d;
+  font-size: 14px;
   font-weight: 700;
-
   cursor: pointer;
+  transition: 0.2s;
+}
 
+.btn-primary:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  border: 1px solid #d5dbea;
+  border-radius: 9px;
+  padding: 11px 18px;
+  background: #fff;
+  color: #0b1f4d;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #f1f3f8;
 }
 
 
-/* =================================
-   CARD DA PARTIDA
-================================= */
+/* ==========================================
+   MENSAGENS
+========================================== */
+
+.mensagem {
+  padding: 20px;
+  border-radius: 12px;
+  background: #fff;
+  color: #68738a;
+  text-align: center;
+}
+
+.mensagem.erro {
+  color: #b42318;
+  background: #fff1f0;
+}
+
+
+/* ==========================================
+   ESTADO VAZIO
+========================================== */
+
+.empty-state {
+  padding: 60px 20px;
+  border-radius: 16px;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.empty-icon {
+  font-size: 45px;
+  margin-bottom: 12px;
+}
+
+.empty-state h2 {
+  margin: 0 0 8px;
+  color: #0b1f4d;
+}
+
+.empty-state p {
+  margin: 0 0 24px;
+  color: #68738a;
+}
+
+
+/* ==========================================
+   LISTA
+========================================== */
+
+.partidas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
 .partida-card {
-
   display: flex;
-
-  justify-content: space-between;
-
   align-items: center;
-
-  padding: 24px;
-
-  margin-bottom: 15px;
-
-  border: 1px solid #e5e7eb;
-
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px;
   border-radius: 14px;
-
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
-
-
-.partida-card strong {
-
-  color: #0d2354;
-
-  font-size: 20px;
-
-}
-
-
-.versus {
-
-  margin: 0 15px;
-
-  color: #667085;
-
-  font-weight: bold;
-
-}
-
 
 .partida-info {
+  flex: 1;
+}
 
+.partida-times {
   display: flex;
-
+  align-items: center;
   gap: 25px;
-
-  color: #667085;
-
 }
 
-
-/* =================================
-   TELA CRIAR PARTIDA
-================================= */
-
-.criar-partida-page {
-
-  width: 100%;
-
+.time {
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
 }
 
+.time-label {
+  margin-bottom: 5px;
+  color: #8993a7;
+  font-size: 12px;
+}
 
-.btn-voltar {
-
-  background: white;
-
-  color: #0d2354;
-
-  border: 1px solid #d0d5dd;
-
-  border-radius: 12px;
-
-  padding: 15px 25px;
-
+.time strong {
+  color: #0b1f4d;
   font-size: 17px;
-
-  font-weight: 700;
-
-  cursor: pointer;
-
 }
-
-
-.btn-voltar:hover {
-
-  background: #f5f6fa;
-
-}
-
-
-/* =================================
-   FORMULÁRIO
-================================= */
-
-.form-container {
-
-  background: white;
-
-  border-radius: 22px;
-
-  padding: 35px;
-
-  max-width: 900px;
-
-  box-shadow:
-    0 2px 10px rgba(0, 0, 0, 0.03);
-
-}
-
-
-.form-titulo {
-
-  margin-bottom: 30px;
-
-}
-
-
-.form-titulo h2 {
-
-  margin: 0;
-
-  color: #0d2354;
-
-  font-size: 25px;
-
-}
-
-
-.form-titulo p {
-
-  color: #667085;
-
-  margin-top: 7px;
-
-}
-
-
-/* =================================
-   TIMES
-================================= */
-
-.times-container {
-
-  display: grid;
-
-  grid-template-columns: 1fr 60px 1fr;
-
-  gap: 20px;
-
-  align-items: end;
-
-  margin-bottom: 25px;
-
-}
-
 
 .vs {
-
-  display: flex;
-
-  justify-content: center;
-
-  align-items: center;
-
-  height: 48px;
-
-  color: #0d2354;
-
   font-weight: 800;
+  color: #f0b429;
+}
 
-  font-size: 20px;
+.partida-detalhes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 15px;
+  color: #68738a;
+  font-size: 13px;
+}
 
+.btn-delete {
+  border: none;
+  border-radius: 8px;
+  padding: 9px 14px;
+  background: #fff0f0;
+  color: #c62828;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background: #ffe0e0;
 }
 
 
-/* =================================
-   CAMPOS
-================================= */
+/* ==========================================
+   FORMULÁRIO
+========================================== */
 
-.campo {
+.form-card {
+  max-width: 800px;
+  padding: 28px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
 
+.form-row {
   display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  margin-bottom: 20px;
+}
 
+.form-group {
+  flex: 1;
+  display: flex;
   flex-direction: column;
-
-  margin-bottom: 22px;
-
+  gap: 7px;
+  margin-bottom: 20px;
 }
 
-
-.campo label {
-
-  margin-bottom: 8px;
-
-  color: #0d2354;
-
+.form-group label {
+  color: #0b1f4d;
+  font-size: 14px;
   font-weight: 700;
-
-  font-size: 16px;
-
 }
 
-
-.campo input,
-.campo select {
-
-  height: 50px;
-
-  border: 1px solid #d0d5dd;
-
-  border-radius: 10px;
-
-  padding: 0 14px;
-
-  font-size: 16px;
-
-  color: #344054;
-
-  background: white;
-
+.form-group input,
+.form-group select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #d5dbea;
+  border-radius: 9px;
   outline: none;
+  background: #fff;
+  color: #1f2937;
+  font-size: 14px;
+}
 
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #0b1f4d;
+}
+
+.form-group select {
+  cursor: pointer;
+}
+
+.vs-form {
+  padding-bottom: 31px;
+  color: #f0b429;
+  font-weight: 800;
 }
 
 
-.campo input:focus,
-.campo select:focus {
+/* ==========================================
+   ERRO DO FORMULÁRIO
+========================================== */
 
-  border-color: #0d2354;
-
-  box-shadow:
-    0 0 0 3px rgba(13, 35, 84, 0.08);
-
+.form-erro {
+  margin-top: 5px;
+  margin-bottom: 15px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff1f0;
+  color: #b42318;
+  font-size: 14px;
 }
 
 
-/* =================================
-   BOTÕES
-================================= */
+/* ==========================================
+   AÇÕES
+========================================== */
 
-.form-botoes {
-
+.form-actions {
   display: flex;
-
   justify-content: flex-end;
-
-  gap: 15px;
-
-  margin-top: 30px;
-
-  padding-top: 25px;
-
-  border-top: 1px solid #eaecf0;
-
+  gap: 12px;
+  margin-top: 10px;
 }
 
 
-.btn-cancelar {
+/* ==========================================
+   RESPONSIVIDADE
+========================================== */
 
-  background: #f2f4f7;
+@media (max-width: 900px) {
 
-  color: #344054;
-
-  border: none;
-
-  border-radius: 10px;
-
-  padding: 15px 25px;
-
-  font-size: 16px;
-
-  font-weight: 700;
-
-  cursor: pointer;
-
-}
-
-
-.btn-salvar {
-
-  background: #0d2354;
-
-  color: white;
-
-  border: none;
-
-  border-radius: 10px;
-
-  padding: 15px 25px;
-
-  font-size: 16px;
-
-  font-weight: 700;
-
-  cursor: pointer;
-
-}
-
-
-.btn-salvar:hover {
-
-  background: #172f68;
-
-}
-
-
-/* =================================
-   RESPONSIVO
-================================= */
-
-@media (max-width: 700px) {
-
-  .partidas-page {
-
-    padding: 25px;
-
-  }
-
-
-  .page-header,
-  .criar-header {
-
+  .partidas-layout {
     flex-direction: column;
-
-    gap: 20px;
-
   }
 
-
-  .times-container {
-
-    grid-template-columns: 1fr;
-
+  .partidas-content {
+    padding: 20px;
   }
 
-
-  .vs {
-
-    height: auto;
-
+  .page-header {
+    align-items: flex-start;
+    gap: 15px;
   }
-
 
   .partida-card {
-
-    flex-direction: column;
-
     align-items: flex-start;
-
-    gap: 20px;
-
+    flex-direction: column;
   }
 
+  .partida-times {
+    flex-wrap: wrap;
+  }
 
-  .partida-info {
-
+  .form-row {
     flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
 
-    gap: 8px;
-
+  .vs-form {
+    display: none;
   }
 
 }

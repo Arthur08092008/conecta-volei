@@ -1,4 +1,5 @@
 <template>
+  <Sidebar/>
   <div class="page">
     <!-- marca decorativa no canto -->
     <svg
@@ -21,14 +22,11 @@
     <div class="card">
       <div class="header">
         <div class="logo-circle">
-          <svg width="46" height="46" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="9" stroke="#f0b429" stroke-width="1.6" />
-            <path
-              d="M12 3c2.5 2.5 2.5 15.5 0 18M4.5 8c3 1.8 12 1.8 15 0M4.5 16c3-1.8 12-1.8 15 0"
-              stroke="#ffffff"
-              stroke-width="1.3"
-              fill="none"
-            />
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="9" cy="7" r="4" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
         <h1>Cadastro de Time</h1>
@@ -110,24 +108,18 @@
 
         <p v-if="erro" class="erro">{{ erro }}</p>
 
-<<<<<<< HEAD
-        <button type="submit" class="btn-principal">Cadastrar time</button>
-=======
         <button type="submit" class="btn-principal" :disabled="carregando">
           {{ carregando ? "Cadastrando..." : "Cadastrar time" }}
         </button>
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
       </form>
     </div>
   </div>
 </template>
 
 <script>
-<<<<<<< HEAD
-=======
+import Sidebar from "../components/Sidebar.vue";
 import api from "../services/api";
 
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
 export default {
   name: "CadastroTimes",
   data() {
@@ -142,30 +134,16 @@ export default {
       },
       enviado: false,
       erro: "",
-<<<<<<< HEAD
-    };
-  },
-  methods: {
-    handleSubmit() {
-=======
       carregando: false,
     };
   },
   methods: {
     async handleSubmit() {
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
       if (!this.form.nome.trim() || !this.form.cidade.trim() || !this.form.tecnico.trim()) {
         this.erro = "Preencha nome do time, cidade e técnico responsável.";
         return;
       }
       this.erro = "";
-<<<<<<< HEAD
-
-      // TODO: quando o backend de times estiver pronto, trocar por:
-      // await api.post('/times', this.form)
-
-      this.enviado = true;
-=======
       this.carregando = true;
 
       try {
@@ -176,7 +154,6 @@ export default {
       } finally {
         this.carregando = false;
       }
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
     },
     resetar() {
       this.form = {

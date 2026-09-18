@@ -4,17 +4,32 @@ function verificarToken(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    return res.status(401).json({ mensagem: 'Token não informado.' });
+    return res.status(401).json({
+      mensagem: 'Token nao informado.'
+    });
   }
 
   const [, token] = authHeader.split(' ');
 
+  if (!token) {
+    return res.status(401).json({
+      mensagem: 'Token invalido.'
+    });
+  }
+
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
     req.usuario = payload;
-    return next();
+
+    next();
   } catch (erro) {
-    return res.status(401).json({ mensagem: 'Token inválido ou expirado.' });
+    return res.status(401).json({
+      mensagem: 'Token invalido ou expirado.'
+    });
   }
 }
 

@@ -1,39 +1,7 @@
 <template>
   <div class="app-shell">
     <!-- Menu lateral (igual ao Inicio.vue) -->
-    <aside class="sidebar">
-      <div class="sidebar-logo">
-        <div class="logo-badge">
-          <img src="../assets/logo.jpeg" alt="Logo VoleiTCC" />
-        </div>
-<<<<<<< HEAD
-        <span>VoleiApp</span>
-=======
-        <span>Conecta Volei</span>
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
-      </div>
-
-      <nav class="sidebar-nav">
-        <RouterLink to="/inicio" class="nav-item" active-class="nav-item-active">
-          Início
-        </RouterLink>
-        <RouterLink to="/times" class="nav-item" active-class="nav-item-active">
-          Times
-        </RouterLink>
-        <RouterLink to="/campeonatos" class="nav-item" active-class="nav-item-active">
-          Campeonatos
-        </RouterLink>
-        <RouterLink to="/tabelas" class="nav-item" active-class="nav-item-active">
-          Tabelas
-        </RouterLink>
-        <RouterLink to="/partidas" class="nav-item" active-class="nav-item-active">
-          Partidas
-        </RouterLink>
-        <RouterLink to="/perfil" class="nav-item" active-class="nav-item-active">
-          Perfil
-        </RouterLink>
-      </nav>
-    </aside>
+    <Sidebar/>
 
     <!-- Conteúdo principal -->
     <main class="content">
@@ -94,6 +62,7 @@
 import { ref, onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
 import api from '../services/api';
+import Sidebar from '../components/Sidebar.vue';
 
 const times = ref([]);
 const carregando = ref(true);
@@ -134,70 +103,6 @@ onMounted(carregarTimes);
   background: #f5f6fa;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
-
-/* Sidebar (mesmo estilo do Inicio.vue) */
-.sidebar {
-  width: 220px;
-  flex-shrink: 0;
-  background: #0b1f4d;
-  color: #fff;
-  padding: 24px 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 8px 24px;
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.logo-badge {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: #f0b429;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.logo-badge img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.nav-item {
-  padding: 11px 14px;
-  border-radius: 10px;
-  color: #cfd8ea;
-  text-decoration: none;
-  font-size: 14.5px;
-  font-weight: 600;
-  transition: background 0.15s, color 0.15s;
-}
-
-.nav-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-}
-
-.nav-item-active {
-  background: #f0b429;
-  color: #0b1f4d;
-}
-
 /* Conteúdo */
 .content {
   flex: 1;

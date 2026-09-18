@@ -2,100 +2,64 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const usuarioModel = require('../models/usuarioModel');
 
-<<<<<<< HEAD
+// =========================
+// CADASTRO
+// =========================
 async function cadastrar(req, res) {
   try {
-    console.log('\n========== INÍCIO DO CADASTRO ==========');
-
     const { nome, email, senha } = req.body;
 
-    console.log('Dados recebidos:');
-    console.log('Nome:', nome);
-    console.log('Email:', email);
-    console.log('Senha recebida:', senha ? 'SIM' : 'NÃO');
-
-    // Verifica se todos os campos foram enviados
+    // Verifica os campos obrigatórios
     if (!nome || !email || !senha) {
-      console.error('ERRO: Campos obrigatórios não foram preenchidos.');
-
       return res.status(400).json({
-        mensagem: 'Nome, e-mail e senha são obrigatórios.',
+        mensagem: 'Nome, e-mail e senha são obrigatórios.'
       });
     }
 
-    console.log('1. Verificando se o e-mail já existe...');
-
+    // Verifica se o e-mail já está cadastrado
     const usuarioExistente = await usuarioModel.buscarPorEmail(email);
 
     if (usuarioExistente) {
-      console.warn('E-mail já cadastrado:', email);
-
       return res.status(409).json({
-        mensagem: 'Este e-mail já está cadastrado.',
+        mensagem: 'Este e-mail já está cadastrado.'
       });
     }
 
-    console.log('2. E-mail disponível.');
-
     // Cria o hash da senha
-    console.log('3. Criando hash da senha...');
-
     const senhaHash = await bcrypt.hash(senha, 10);
 
-    console.log('4. Hash criado com sucesso.');
-
     // Salva o usuário no banco
-    console.log('5. Tentando salvar usuário no PostgreSQL...');
-
     const usuario = await usuarioModel.criar({
       nome,
       email,
-      senhaHash,
+      senhaHash
     });
-
-    console.log('6. Usuário salvo com sucesso!');
-    console.log('Usuário criado:', usuario);
-
-    console.log('========== CADASTRO FINALIZADO ==========\n');
 
     return res.status(201).json({
       mensagem: 'Cadastro realizado com sucesso.',
-      usuario,
+      usuario
     });
 
   } catch (erro) {
-    console.error('\n========== ERRO NO CADASTRO ==========');
-
-    console.error('Mensagem:', erro.message);
-    console.error('Código:', erro.code);
-    console.error('Detalhes:', erro.detail);
-    console.error('Tabela:', erro.table);
-    console.error('Coluna:', erro.column);
-    console.error('Constraint:', erro.constraint);
-
-    console.error('Stack completo:');
-    console.error(erro.stack);
-
-    console.error('========================================\n');
+    console.error('Erro no cadastro:', erro);
 
     return res.status(500).json({
-      mensagem: 'Erro interno do servidor.',
+      mensagem: 'Erro interno do servidor.'
     });
   }
 }
 
-
-=======
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
+// =========================
+// LOGIN
+// =========================
 async function login(req, res) {
   try {
     const { email, senha } = req.body;
 
-<<<<<<< HEAD
-    // Verifica se os campos foram enviados
+    // Verifica os campos obrigatórios
     if (!email || !senha) {
       return res.status(400).json({
-        mensagem: 'E-mail e senha são obrigatórios.',
+        mensagem: 'E-mail e senha são obrigatórios.'
       });
     }
 
@@ -104,11 +68,11 @@ async function login(req, res) {
 
     if (!usuario) {
       return res.status(401).json({
-        mensagem: 'E-mail ou senha inválidos.',
+        mensagem: 'E-mail ou senha inválidos.'
       });
     }
 
-    // Compara a senha digitada com o hash salvo no banco
+    // Compara a senha informada com a senha criptografada
     const senhaValida = await bcrypt.compare(
       senha,
       usuario.senha
@@ -116,20 +80,20 @@ async function login(req, res) {
 
     if (!senhaValida) {
       return res.status(401).json({
-        mensagem: 'E-mail ou senha inválidos.',
+        mensagem: 'E-mail ou senha inválidos.'
       });
     }
 
-    // Cria o token
+    // Cria o token JWT
     const token = jwt.sign(
       {
         id: usuario.id,
         nome: usuario.nome,
-        email: usuario.email,
+        email: usuario.email
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: process.env.JWT_EXPIRES_IN || '1d',
+        expiresIn: process.env.JWT_EXPIRES_IN || '1d'
       }
     );
 
@@ -139,77 +103,21 @@ async function login(req, res) {
       usuario: {
         id: usuario.id,
         nome: usuario.nome,
-        email: usuario.email,
-      },
+        email: usuario.email
+      }
     });
 
   } catch (erro) {
     console.error('Erro no login:', erro);
 
     return res.status(500).json({
-      mensagem: 'Erro interno do servidor.',
+      mensagem: 'Erro interno do servidor.'
     });
   }
 }
 
-
+// Exporta as funções
 module.exports = {
   cadastrar,
-  login,
+  login
 };
-=======
-    if (!email || !senha) {
-      return res.status(400).json({ mensagem: 'Informe e-mail e senha.' });
-    }
-
-    const usuario = await usuarioModel.buscarPorEmail(email);
-    if (!usuario) {
-      return res.status(401).json({ mensagem: 'E-mail ou senha invalidos.' });
-    }
-
-    const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
-    if (!senhaCorreta) {
-      return res.status(401).json({ mensagem: 'E-mail ou senha invalidos.' });
-    }
-
-    const token = jwt.sign(
-      { id: usuario.id, email: usuario.email },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
-    );
-
-    return res.json({
-      token,
-      usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email },
-    });
-  } catch (erro) {
-    console.error('Erro no login:', erro);
-    return res.status(500).json({ mensagem: 'Erro interno ao efetuar login.' });
-  }
-}
-
-async function cadastrar(req, res) {
-  try {
-    const { nome, email, senha } = req.body;
-
-    if (!nome || !email || !senha) {
-      return res.status(400).json({ mensagem: 'Preencha nome, e-mail e senha.' });
-    }
-
-    const usuarioExistente = await usuarioModel.buscarPorEmail(email);
-    if (usuarioExistente) {
-      return res.status(409).json({ mensagem: 'Ja existe um usuario com este e-mail.' });
-    }
-
-    const senhaHash = await bcrypt.hash(senha, 10);
-    const novoUsuario = await usuarioModel.criar({ nome, email, senhaHash });
-
-    return res.status(201).json({ usuario: novoUsuario });
-  } catch (erro) {
-    console.error('Erro no cadastro:', erro);
-    return res.status(500).json({ mensagem: 'Erro interno ao cadastrar usuario.' });
-  }
-}
-
-module.exports = { login, cadastrar };
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693

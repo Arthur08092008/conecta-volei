@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-```vue
-=======
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
 <template>
   <div class="login-page">
     <!-- Formas coloridas de fundo -->
@@ -9,36 +5,44 @@
     <div class="shape shape-yellow"></div>
 
     <div class="login-card">
-      <img class="logo" src="../assets/logo.jpeg" alt="Logo VoleiTCC" />
-      <h1>VoleiTCC</h1>
+      <img
+        class="logo"
+        src="../assets/logo.jpeg"
+        alt="Logo Conecta Vôlei"
+      />
+
+      <h1>Conecta Vôlei</h1>
       <p class="subtitle">Acesse sua conta</p>
 
       <form @submit.prevent="entrar">
         <label for="email">E-mail</label>
+
         <input
           id="email"
           v-model="email"
           type="email"
-          placeholder="seuemail@exemplo.com"
+          placeholder="Digite seu E-mail"
           required
         />
 
         <label for="senha">Senha</label>
+
         <input
           id="senha"
           v-model="senha"
           type="password"
-          placeholder="********"
+          placeholder="Digite sua Senha"
           required
         />
 
-        <p v-if="erro" class="erro">{{ erro }}</p>
+        <p v-if="erro" class="erro">
+          {{ erro }}
+        </p>
 
         <button type="submit" :disabled="carregando">
           {{ carregando ? 'Entrando...' : 'Entrar' }}
         </button>
       </form>
-<<<<<<< HEAD
 
       <!-- Cadastro -->
       <div class="cadastro-area">
@@ -52,8 +56,6 @@
           Criar cadastro
         </button>
       </div>
-=======
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
     </div>
   </div>
 </template>
@@ -67,38 +69,29 @@ const email = ref('');
 const senha = ref('');
 const erro = ref('');
 const carregando = ref(false);
-<<<<<<< HEAD
 
-=======
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
 const router = useRouter();
 
 async function entrar() {
   erro.value = '';
   carregando.value = true;
-<<<<<<< HEAD
 
-=======
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
   try {
     const resposta = await api.post('/auth/login', {
       email: email.value,
       senha: senha.value,
     });
-<<<<<<< HEAD
 
-    localStorage.setItem('voleitcc_token', resposta.data.token);
+    localStorage.setItem(
+      'voleitcc_token',
+      resposta.data.token
+    );
 
     router.push('/inicio');
   } catch (e) {
     erro.value =
-      e.response?.data?.mensagem || 'Não foi possível entrar.';
-=======
-      localStorage.setItem('voleitcc_token', resposta.data.token);
-    router.push('/inicio');
-  } catch (e) {
-    erro.value = e.response?.data?.mensagem || 'Nao foi possivel entrar.';
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
+      e.response?.data?.mensagem ||
+      'Não foi possível entrar.';
   } finally {
     carregando.value = false;
   }
@@ -112,16 +105,14 @@ async function entrar() {
   display: flex;
   align-items: center;
   justify-content: center;
-<<<<<<< HEAD
+
   background: linear-gradient(
     160deg,
     #0f2a63 0%,
     #163b7c 55%,
     #1e4fa3 100%
   );
-=======
-  background: linear-gradient(160deg, #0f2a63 0%, #163b7c 55%, #1e4fa3 100%);
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693
+
   overflow: hidden;
 }
 
@@ -150,21 +141,29 @@ async function entrar() {
 .login-card {
   position: relative;
   z-index: 1;
+
   background-color: #ffffff;
+
   padding: 40px 32px;
   border-radius: 16px;
+
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+
   width: 100%;
   max-width: 360px;
+
   text-align: center;
 }
 
 .logo {
   width: 84px;
   height: 84px;
+
   margin-bottom: 8px;
+
   border-radius: 20px;
   border: 3px solid #f5c518;
+
   object-fit: cover;
 }
 
@@ -189,14 +188,17 @@ form {
 label {
   font-size: 13px;
   color: #333;
+
   margin-bottom: 4px;
   margin-top: 12px;
 }
 
 input {
   padding: 10px 12px;
+
   border: 1px solid #ddd;
   border-radius: 8px;
+
   font-size: 14px;
 }
 
@@ -213,14 +215,20 @@ input:focus {
 
 button {
   margin-top: 24px;
+
   padding: 12px;
+
   border: none;
   border-radius: 8px;
+
   background-color: #0f2a63;
   color: #fff;
+
   font-size: 15px;
   font-weight: bold;
+
   cursor: pointer;
+
   transition: background-color 0.2s;
 }
 
@@ -232,17 +240,18 @@ button:disabled {
   opacity: 0.7;
   cursor: default;
 }
-<<<<<<< HEAD
 
 /* Área de cadastro */
 .cadastro-area {
   margin-top: 20px;
   padding-top: 18px;
+
   border-top: 1px solid #eee;
 
   display: flex;
   flex-direction: column;
   align-items: center;
+
   gap: 6px;
 
   color: #666;
@@ -251,9 +260,12 @@ button:disabled {
 
 .btn-cadastro {
   margin-top: 0;
+
   padding: 0;
+
   background: transparent;
   color: #0f2a63;
+
   font-size: 14px;
   font-weight: 700;
 }
@@ -263,7 +275,3 @@ button:disabled {
   color: #f0b429;
 }
 </style>
-```
-=======
-</style>
->>>>>>> 07a131da61aaab5194772d8e9c351f3ccfa4d693

@@ -1,5 +1,5 @@
-```vue
 <template>
+  
   <div class="cadastro-page">
 
     <div class="shape shape-blue"></div>
@@ -34,7 +34,7 @@
           id="email"
           v-model="email"
           type="email"
-          placeholder="seuemail@exemplo.com"
+          placeholder="Digite seu E-mail@exemplo.com"
           required
         />
 
