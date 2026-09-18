@@ -2,52 +2,55 @@
   <div class="app-shell">
     <Sidebar />
 
-    <!-- Conteúdo principal -->
     <main class="content">
       <div class="topo">
         <div>
-          <h1>Times</h1>
-          <p class="subtitulo">{{ times.length }} time(s) cadastrado(s)</p>
+          <h1>Partidas</h1>
+          <p class="subtitulo">{{ partidas.length }} partida(s) cadastrada(s)</p>
         </div>
-        <RouterLink to="/times/cadastro" class="btn-novo">+ Novo time</RouterLink>
+        <RouterLink to="/agendas" class="btn-primary">+ Nova partida</RouterLink>
       </div>
 
-      <p v-if="carregando" class="msg">Carregando times...</p>
+      <p v-if="carregando" class="msg">Carregando partidas...</p>
       <p v-else-if="erro" class="msg erro">{{ erro }}</p>
-      <p v-else-if="times.length === 0" class="msg">
-        Nenhum time cadastrado ainda.
-        <RouterLink to="/times/cadastro">Cadastrar o primeiro</RouterLink>
+      <p v-else-if="partidas.length === 0" class="msg">
+        Nenhuma partida cadastrada ainda.
+        <RouterLink to="/agendas">Agendar a primeira</RouterLink>
       </p>
 
       <div v-else class="tabela-wrap">
         <table>
           <thead>
             <tr>
-              <th>Nome</th>
-              <th>Cidade</th>
-              <th>Categoria</th>
-              <th>Técnico</th>
-              <th>Contato</th>
+              <th>Data</th>
+              <th>Mandante</th>
+              <th>Visitante</th>
+              <th>Campeonato</th>
+              <th>Resultado</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="time in times" :key="time.id">
-              <td class="nome">{{ time.nome }}</td>
-              <td>{{ time.cidade }}</td>
-              <td>
-                <span class="badge">{{ time.categoria }}</span>
+            <tr v-for="p in partidas" :key="p.id">
+              <td class="data-cell">
+                {{ formatarData(p.data_jogo) }}
+                <span v-if="p.horario" class="horario">{{ formatarHorario(p.horario) }}</span>
               </td>
-              <td>{{ time.tecnico }}</td>
-              <td class="contato">
-                <span v-if="time.email">{{ time.email }}</span>
-                <span v-if="time.telefone">{{ time.telefone }}</span>
-                <span v-if="!time.email && !time.telefone">—</span>
+              <td class="nome">{{ p.mandante }}</td>
+              <td class="nome">{{ p.visitante }}</td>
+              <td>{{ p.campeonato_nome || '—' }}</td>
+              <td>
+                <span v-if="p.resultado" class="badge">{{ p.resultado }}</span>
+                <span v-else class="pendente">Não realizada</span>
               </td>
               <td class="acoes">
-                <button class="btn-icone" title="Excluir" @click="confirmarExclusao(time)">
-                  Excluir
-                </button>
+                <RouterLink
+                  class="btn-checklist"
+                  :to="{ path: '/checklist', query: { partida: p.id } }"
+                >
+                  Checklist
+                </RouterLink>
+                <button class="btn-excluir" @click="excluirPartida(p.id)">Excluir</button>
               </td>
             </tr>
           </tbody>
@@ -63,36 +66,46 @@ import { RouterLink } from 'vue-router';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar.vue';
 
-const times = ref([]);
+const partidas = ref([]);
 const carregando = ref(true);
 const erro = ref('');
 
-async function carregarTimes() {
+async function carregarPartidas() {
   carregando.value = true;
   erro.value = '';
   try {
-    const resposta = await api.get('/times');
-    times.value = resposta.data.times;
+    const resposta = await api.get('/partidas');
+    partidas.value = resposta.data;
   } catch (e) {
-    erro.value = e.response?.data?.mensagem || 'Não foi possível carregar os times.';
+    console.error('Erro ao carregar partidas:', e);
+    erro.value = 'Não foi possível carregar as partidas.';
   } finally {
     carregando.value = false;
   }
 }
 
-async function confirmarExclusao(time) {
-  const confirmou = window.confirm(`Excluir o time "${time.nome}"? Essa ação não pode ser desfeita.`);
-  if (!confirmou) return;
-
+async function excluirPartida(id) {
+  if (!confirm('Deseja realmente excluir esta partida?')) return;
   try {
-    await api.delete(`/times/${time.id}`);
-    times.value = times.value.filter((t) => t.id !== time.id);
+    await api.delete(`/partidas/${id}`);
+    partidas.value = partidas.value.filter((p) => p.id !== id);
   } catch (e) {
-    erro.value = e.response?.data?.mensagem || 'Não foi possível excluir o time.';
+    console.error('Erro ao excluir partida:', e);
+    alert('Erro ao excluir partida.');
   }
 }
 
-onMounted(carregarTimes);
+function formatarData(data) {
+  if (!data) return '—';
+  const [ano, mes, dia] = data.slice(0, 10).split('-');
+  return `${dia}/${mes}/${ano}`;
+}
+
+function formatarHorario(hms) {
+  return hms ? hms.slice(0, 5) : '';
+}
+
+onMounted(carregarPartidas);
 </script>
 
 <style scoped>
@@ -103,7 +116,6 @@ onMounted(carregarTimes);
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
-/* Conteúdo */
 .content {
   flex: 1;
   padding: 32px;
@@ -130,7 +142,7 @@ h1 {
   margin-top: 4px;
 }
 
-.btn-novo {
+.btn-primary {
   background: #0b1f4d;
   color: #fff;
   text-decoration: none;
@@ -140,7 +152,7 @@ h1 {
   font-weight: 700;
 }
 
-.btn-novo:hover {
+.btn-primary:hover {
   background: #122f6b;
 }
 
@@ -195,6 +207,20 @@ td {
   color: #1f2937;
 }
 
+.data-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-weight: 600;
+  color: #0b1f4d;
+}
+
+.horario {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
 .nome {
   font-weight: 700;
   color: #0b1f4d;
@@ -209,19 +235,33 @@ td {
   font-weight: 700;
 }
 
-.contato {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.pendente {
+  color: #9ca3af;
   font-size: 13px;
-  color: #6b7280;
 }
 
 .acoes {
-  text-align: right;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
-.btn-icone {
+.btn-checklist {
+  background: #fdf1dc;
+  color: #a06600;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.btn-checklist:hover {
+  background: #fbe6c0;
+}
+
+.btn-excluir {
   background: #fdeceb;
   color: #d93025;
   border: none;
@@ -232,7 +272,7 @@ td {
   cursor: pointer;
 }
 
-.btn-icone:hover {
+.btn-excluir:hover {
   background: #fbdcda;
 }
 

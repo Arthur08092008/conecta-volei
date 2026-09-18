@@ -1,21 +1,6 @@
 <template>
   <div class="layout">
-    <aside class="sidebar">
-      <div class="logo">
-        <div class="icon">
-          <img src="../assets/logo.jpeg" alt="Conecta Vôlei" class="icon-img" />
-        </div>
-        <span>Conecta Volei</span>
-      </div>
-      <nav>
-        <router-link to="/">Início</router-link>
-        <router-link to="/times">Times</router-link>
-        <router-link to="/campeonatos" class="active">Campeonatos</router-link>
-        <router-link to="/tabelas">Tabelas</router-link>
-        <router-link to="/partidas">Partidas</router-link>
-        <router-link to="/perfil">Perfil</router-link>
-      </nav>
-    </aside>
+    <Sidebar />
 
     <main>
       <div class="page-header">
@@ -65,8 +50,13 @@
 </template>
 
 <script>
+import Sidebar from '../components/Sidebar.vue'
+
 export default {
   name: 'Campeonatos',
+  components: {
+    Sidebar,
+  },
   data() {
     return {
       campeonatos: [],
@@ -123,81 +113,12 @@ export default {
 </script>
 
 <style scoped>
-:root {
-  --navy: #101c46;
-  --navy-light: #16224f;
-  --gold: #f0a800;
-}
-
 .layout {
   display: flex;
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: #f4f5f9;
   color: #1a1a2e;
-}
-
-.sidebar {
-  width: 260px;
-  background: #101c46;
-  padding: 28px 20px;
-  flex-shrink: 0;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 36px;
-  padding: 0 8px;
-}
-
-.logo .icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: #f0b429;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.logo .icon-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.logo span {
-  color: #fff;
-  font-size: 20px;
-  font-weight: 800;
-}
-
-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-nav a {
-  color: #c7cbe0;
-  text-decoration: none;
-  font-size: 15px;
-  font-weight: 600;
-  padding: 12px 16px;
-  border-radius: 10px;
-}
-
-nav a:hover {
-  background: #16224f;
-  color: #fff;
-}
-
-nav a.active {
-  background: #f0a800;
-  color: #101c46;
 }
 
 main {

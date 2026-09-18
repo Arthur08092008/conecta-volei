@@ -1,112 +1,123 @@
 <template>
-  <div class="times-page">
-    <header class="page-header">
-      <h1>Times</h1>
-      <p>Gerencie os times cadastrados no sistema</p>
-    </header>
+  <div class="app-shell">
+    <Sidebar />
 
-    <div class="content-grid">
-      <!-- Formulário de cadastro/edição -->
-      <section class="card form-card">
-        <h2>{{ editando ? 'Editar Time' : 'Novo Time' }}</h2>
-        <form @submit.prevent="salvarTime">
-          <div class="field">
-            <label for="nome">Nome do time</label>
-            <input
-              id="nome"
-              v-model="form.nome"
-              type="text"
-              placeholder="Ex: Vôlei Clube Central"
-              required
-            />
-          </div>
+    <div class="content">
+      <div class="times-page">
+        <header class="page-header">
+          <h1>Times</h1>
+          <p>Gerencie os times cadastrados no sistema</p>
+        </header>
 
-          <div class="field">
-            <label for="cidade">Cidade</label>
-            <input
-              id="cidade"
-              v-model="form.cidade"
-              type="text"
-              placeholder="Ex: Curitiba"
-              required
-            />
-          </div>
+        <div class="content-grid">
+          <!-- Formulário de cadastro/edição -->
+          <section class="card form-card">
+            <h2>{{ editando ? 'Editar Time' : 'Novo Time' }}</h2>
+            <form @submit.prevent="salvarTime">
+              <div class="field">
+                <label for="nome">Nome do time</label>
+                <input
+                  id="nome"
+                  v-model="form.nome"
+                  type="text"
+                  placeholder="Ex: Vôlei Clube Central"
+                  required
+                />
+              </div>
 
-          <div class="field">
-            <label for="categoria">Categoria</label>
-            <select id="categoria" v-model="form.categoria" required>
-              <option disabled value="">Selecione</option>
-              <option value="Masculino">Masculino</option>
-              <option value="Feminino">Feminino</option>
-              <option value="Misto">Misto</option>
-            </select>
-          </div>
+              <div class="field">
+                <label for="cidade">Cidade</label>
+                <input
+                  id="cidade"
+                  v-model="form.cidade"
+                  type="text"
+                  placeholder="Ex: Curitiba"
+                  required
+                />
+              </div>
 
-          <div class="form-actions">
-            <button type="submit" class="btn-primary">
-              {{ editando ? 'Salvar alterações' : 'Cadastrar time' }}
-            </button>
-            <button
-              v-if="editando"
-              type="button"
-              class="btn-secondary"
-              @click="cancelarEdicao"
-            >
-              Cancelar
-            </button>
-          </div>
-        </form>
-      </section>
+              <div class="field">
+                <label for="categoria">Categoria</label>
+                <select id="categoria" v-model="form.categoria" required>
+                  <option disabled value="">Selecione</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Feminino">Feminino</option>
+                  <option value="Misto">Misto</option>
+                </select>
+              </div>
 
-      <!-- Lista de times -->
-      <section class="card list-card">
-        <h2>Times cadastrados ({{ times.length }})</h2>
-
-        <div v-if="times.length === 0" class="empty-state">
-          Nenhum time cadastrado ainda.
-        </div>
-
-        <table v-else class="times-table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Cidade</th>
-              <th>Categoria</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="time in times" :key="time.id">
-              <td>{{ time.nome }}</td>
-              <td>{{ time.cidade }}</td>
-              <td>
-                <span class="badge" :class="badgeClass(time.categoria)">
-                  {{ time.categoria }}
-                </span>
-              </td>
-              <td class="actions">
-                <button class="icon-btn" title="Editar" @click="editarTime(time)">
-                  ✏️
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                  {{ editando ? 'Salvar alterações' : 'Cadastrar time' }}
                 </button>
                 <button
-                  class="icon-btn"
-                  title="Excluir"
-                  @click="excluirTime(time.id)"
+                  v-if="editando"
+                  type="button"
+                  class="btn-secondary"
+                  @click="cancelarEdicao"
                 >
-                  🗑️
+                  Cancelar
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
+              </div>
+            </form>
+          </section>
+
+          <!-- Lista de times -->
+          <section class="card list-card">
+            <h2>Times cadastrados ({{ times.length }})</h2>
+
+            <div v-if="times.length === 0" class="empty-state">
+              Nenhum time cadastrado ainda.
+            </div>
+
+            <table v-else class="times-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Cidade</th>
+                  <th>Categoria</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="time in times" :key="time.id">
+                  <td>{{ time.nome }}</td>
+                  <td>{{ time.cidade }}</td>
+                  <td>
+                    <span class="badge" :class="badgeClass(time.categoria)">
+                      {{ time.categoria }}
+                    </span>
+                  </td>
+                  <td class="actions">
+                    <button class="icon-btn" title="Editar" @click="editarTime(time)">
+                      ✏️
+                    </button>
+                    <button
+                      class="icon-btn"
+                      title="Excluir"
+                      @click="excluirTime(time.id)"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import Sidebar from '../components/Sidebar.vue'
+
 export default {
   name: 'TimesPage',
+  components: {
+    Sidebar,
+  },
   data() {
     return {
       // Dados mock — depois isso vai virar chamada pra API (Express/PostgreSQL)
@@ -170,6 +181,16 @@ export default {
 </script>
 
 <style scoped>
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
 .times-page {
   min-height: 100vh;
   background: #f4f7fb;

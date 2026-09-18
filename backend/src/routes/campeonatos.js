@@ -1,10 +1,9 @@
-// backend/routes/campeonatos.js
-// Ajuste o caminho de importação do "db" conforme a conexão pg que você já usa no projeto
+// backend/src/routes/campeonatos.js
 const express = require('express');
 const router = express.Router();
-const db = require('../db'); // deve exportar um Pool/Client do pacote "pg" já conectado
+const db = require('../config/db'); // conexão pg (Pool) já configurada no projeto
 
-// GET /api/campeonatos - lista todos os campeonatos
+// GET /campeonatos - lista todos os campeonatos
 router.get('/', async (req, res) => {
   try {
     const resultado = await db.query(
@@ -17,7 +16,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST /api/campeonatos - cria um novo campeonato
+// POST /campeonatos - cria um novo campeonato
 router.post('/', async (req, res) => {
   const { nome, data_inicio, data_fim, formato, max_equipes, status, regulamento } = req.body;
 
@@ -38,7 +37,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// DELETE /api/campeonatos/:id - exclui um campeonato
+// DELETE /campeonatos/:id - exclui um campeonato
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -51,7 +50,3 @@ router.delete('/:id', async (req, res) => {
 });
 
 module.exports = router;
-
-// No arquivo principal do backend (ex: app.js ou server.js), registre com:
-// const campeonatosRoutes = require('./routes/campeonatos');
-// app.use('/api/campeonatos', campeonatosRoutes);
