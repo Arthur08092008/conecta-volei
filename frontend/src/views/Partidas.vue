@@ -4,18 +4,45 @@
 
     <main class="content">
       <div class="topo">
-        <div>
+        <div class="titulo-area">
           <h1>Partidas</h1>
-          <p class="subtitulo">{{ partidas.length }} partida(s) cadastrada(s)</p>
+          <p class="subtitulo">
+            {{ partidas.length }} partida(s) cadastrada(s)
+          </p>
+
+          <!-- BOTÃO VOLTAR -->
+          <button
+            class="btn-voltar"
+            type="button"
+            @click="voltar"
+          >
+            <Icon
+              icon="carbon:return"
+              width="24"
+              height="24"
+            />
+            <span>Voltar</span>
+          </button>
         </div>
-        <RouterLink to="/agendas" class="btn-primary">+ Nova partida</RouterLink>
+
+        <RouterLink to="/agendas" class="btn-primary">
+          + Nova partida
+        </RouterLink>
       </div>
 
-      <p v-if="carregando" class="msg">Carregando partidas...</p>
-      <p v-else-if="erro" class="msg erro">{{ erro }}</p>
+      <p v-if="carregando" class="msg">
+        Carregando partidas...
+      </p>
+
+      <p v-else-if="erro" class="msg erro">
+        {{ erro }}
+      </p>
+
       <p v-else-if="partidas.length === 0" class="msg">
         Nenhuma partida cadastrada ainda.
-        <RouterLink to="/agendas">Agendar a primeira</RouterLink>
+        <RouterLink to="/agendas">
+          Agendar a primeira
+        </RouterLink>
       </p>
 
       <div v-else class="tabela-wrap">
@@ -30,27 +57,68 @@
               <th></th>
             </tr>
           </thead>
+
           <tbody>
-            <tr v-for="p in partidas" :key="p.id">
+            <tr
+              v-for="p in partidas"
+              :key="p.id"
+            >
               <td class="data-cell">
                 {{ formatarData(p.data_jogo) }}
-                <span v-if="p.horario" class="horario">{{ formatarHorario(p.horario) }}</span>
+
+                <span
+                  v-if="p.horario"
+                  class="horario"
+                >
+                  {{ formatarHorario(p.horario) }}
+                </span>
               </td>
-              <td class="nome">{{ p.mandante }}</td>
-              <td class="nome">{{ p.visitante }}</td>
-              <td>{{ p.campeonato_nome || '—' }}</td>
+
+              <td class="nome">
+                {{ p.mandante }}
+              </td>
+
+              <td class="nome">
+                {{ p.visitante }}
+              </td>
+
               <td>
-                <span v-if="p.resultado" class="badge">{{ p.resultado }}</span>
-                <span v-else class="pendente">Não realizada</span>
+                {{ p.campeonato_nome || '—' }}
               </td>
+
+              <td>
+                <span
+                  v-if="p.resultado"
+                  class="badge"
+                >
+                  {{ p.resultado }}
+                </span>
+
+                <span
+                  v-else
+                  class="pendente"
+                >
+                  Não realizada
+                </span>
+              </td>
+
               <td class="acoes">
                 <RouterLink
                   class="btn-checklist"
-                  :to="{ path: '/checklist', query: { partida: p.id } }"
+                  :to="{
+                    path: '/checklist',
+                    query: { partida: p.id }
+                  }"
                 >
                   Checklist
                 </RouterLink>
-                <button class="btn-excluir" @click="excluirPartida(p.id)">Excluir</button>
+
+                <button
+                  class="btn-excluir"
+                  @click="excluirPartida(p.id)"
+                >
+                  Excluir
+                </button>
               </td>
             </tr>
           </tbody>
@@ -63,6 +131,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
+import { Icon } from '@iconify/vue';
+
 import api from '../services/api';
 import Sidebar from '../components/Sidebar.vue';
 
@@ -73,6 +143,7 @@ const erro = ref('');
 async function carregarPartidas() {
   carregando.value = true;
   erro.value = '';
+
   try {
     const resposta = await api.get('/partidas');
     partidas.value = resposta.data;
@@ -86,9 +157,13 @@ async function carregarPartidas() {
 
 async function excluirPartida(id) {
   if (!confirm('Deseja realmente excluir esta partida?')) return;
+
   try {
     await api.delete(`/partidas/${id}`);
-    partidas.value = partidas.value.filter((p) => p.id !== id);
+
+    partidas.value = partidas.value.filter(
+      (p) => p.id !== id
+    );
   } catch (e) {
     console.error('Erro ao excluir partida:', e);
     alert('Erro ao excluir partida.');
@@ -97,12 +172,21 @@ async function excluirPartida(id) {
 
 function formatarData(data) {
   if (!data) return '—';
-  const [ano, mes, dia] = data.slice(0, 10).split('-');
+
+  const [ano, mes, dia] = data
+    .slice(0, 10)
+    .split('-');
+
   return `${dia}/${mes}/${ano}`;
 }
 
 function formatarHorario(hms) {
   return hms ? hms.slice(0, 5) : '';
+}
+
+// BOTÃO VOLTAR
+function voltar() {
+  window.history.back();
 }
 
 onMounted(carregarPartidas);
@@ -124,9 +208,14 @@ onMounted(carregarPartidas);
 
 .topo {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 24px;
+}
+
+.titulo-area {
+  display: flex;
+  flex-direction: column;
 }
 
 h1 {
@@ -140,6 +229,32 @@ h1 {
   color: #6b7280;
   font-size: 14px;
   margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* BOTÃO VOLTAR */
+.btn-voltar {
+  width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  margin-bottom: 24px;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #6c757d;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-voltar:hover {
+  background: #5c636a;
+  transform: translateY(-1px);
 }
 
 .btn-primary {
@@ -280,8 +395,29 @@ td {
   .app-shell {
     flex-direction: column;
   }
+
   .tabela-wrap {
     overflow-x: auto;
   }
 }
-</style>
+
+@media (max-width: 600px) {
+  .content {
+    padding: 20px;
+  }
+
+  .topo {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .btn-voltar {
+    width: 100%;
+  }
+
+  .btn-primary {
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+}

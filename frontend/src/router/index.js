@@ -10,11 +10,9 @@ import Campeonatos from '../views/Campeonatos.vue';
 import CadastroCampeonato from '../views/CadastroCampeonato.vue';
 import Agendas from '../views/Agendas.vue';
 import Checklist from '../views/Checklist.vue';
-import Partidas from '../views/Partidas.vue';
 import Perfil from '../views/Perfil.vue';
 
 const routes = [
-
   // Login
   {
     path: '/',
@@ -70,28 +68,27 @@ const routes = [
     name: 'cadastro-campeonato',
     component: CadastroCampeonato,
   },
+
+  // Agendas
   {
     path: '/agendas',
     name: 'agendas',
     component: Agendas,
   },
+
+  // Checklist
   {
     path: '/checklist',
     name: 'checklist',
     component: Checklist,
   },
-  {
-    path: '/partidas',
-    name: 'partidas',
-    component: Partidas,
-  },
+
+  // Perfil
   {
     path: '/perfil',
     name: 'perfil',
     component: Perfil,
   },
-  // As proximas telas (cadastro de jogadores)
-  // entram aqui como novas rotas conforme forem criadas.
 ];
 
 const router = createRouter({

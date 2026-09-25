@@ -1,37 +1,9 @@
+```vue
 <template>
   <div class="app-shell">
 
-      <nav class="sidebar-nav">
-        <RouterLink to="/inicio" class="nav-item" active-class="nav-item-active">
-          <IconHome />
-          <span>Início</span>
-        </RouterLink>
-        <RouterLink to="/times" class="nav-item" active-class="nav-item-active">
-          <IconTimes />
-          <span>Times</span>
-        </RouterLink>
-        <RouterLink to="/campeonatos" class="nav-item" active-class="nav-item-active">
-          <IconTrophy />
-          <span>Campeonatos</span>
-        </RouterLink>
-        <RouterLink to="/agendas" class="nav-item" active-class="nav-item-active">
-          <IconCalendar />
-          <span>Agendas</span>
-        </RouterLink>
-        <RouterLink to="/partidas" class="nav-item" active-class="nav-item-active">
-          <IconTable />
-          <span>Partidas</span>
-        </RouterLink>
-        <RouterLink to="/checklist" class="nav-item" active-class="nav-item-active">
-          <IconChecklist />
-          <span>Checklist</span>
-        </RouterLink>
-        <RouterLink to="/perfil" class="nav-item" active-class="nav-item-active">
-          <IconUser />
-          <span>Perfil</span>
-        </RouterLink>
-      </nav>
-    </aside>
+    <!-- MENU LATERAL -->
+    <Sidebar />
 
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="content">
@@ -55,8 +27,19 @@
           </p>
 
           <div class="hero-actions">
-            <RouterLink to="/agendas" class="btn-hero-principal">Agendar partida</RouterLink>
-            <RouterLink to="/times" class="btn-hero-secundario">Ver times</RouterLink>
+            <RouterLink
+              to="/agendas"
+              class="btn-hero-principal"
+            >
+              Agendar partida
+            </RouterLink>
+
+            <RouterLink
+              to="/times"
+              class="btn-hero-secundario"
+            >
+              Ver times
+            </RouterLink>
           </div>
 
         </div>
@@ -194,13 +177,26 @@ function svgIcon(paths) {
   }
 }
 
-const IconHome = svgIcon(['M3 11l9-7 9 7M5 10v10h14V10']);
-const IconTimes = svgIcon(['M9 11a3 3 0 100-6 3 3 0 000 6z', 'M16 11a3 3 0 100-6 3 3 0 000 6z', 'M2 20c0-3 3-5 7-5s7 2 7 5', 'M14 15c3.2.4 5 2 5 5']);
-const IconTrophy = svgIcon(['M8 4h8v4a4 4 0 01-8 0V4z', 'M8 4H4v2a4 4 0 004 4', 'M16 4h4v2a4 4 0 01-4 4', 'M12 12v4', 'M9 20h6', 'M10 16h4v4h-4z']);
-const IconCalendar = svgIcon(['M3 5h18v16H3z', 'M8 3v4', 'M16 3v4', 'M3 10h18']);
-const IconTable = svgIcon(['M3 5h18v14H3z', 'M3 10h18', 'M9 5v14']);
-const IconChecklist = svgIcon(['M9 6h11', 'M9 12h11', 'M9 18h11', 'M4 5.5l.8.8L6.5 4.5', 'M4 11.5l.8.8 1.7-1.8', 'M4 17.5l.8.8 1.7-1.8']);
-const IconUser = svgIcon(['M12 12a4 4 0 100-8 4 4 0 000 8z', 'M4 20c0-4 3.5-7 8-7s8 3 8 7']);
+const IconTrophy = svgIcon([
+  'M8 4h8v4a4 4 0 01-8 0V4z',
+  'M8 4H4v2a4 4 0 004 4',
+  'M16 4h4v2a4 4 0 01-4 4',
+  'M12 12v4',
+  'M9 20h6',
+  'M10 16h4v4h-4z'
+])
+
+const IconCalendar = svgIcon([
+  'M3 5h18v16H3z',
+  'M8 3v4',
+  'M16 3v4',
+  'M3 10h18'
+])
+
+const IconUser = svgIcon([
+  'M12 12a4 4 0 100-8 4 4 0 000 8z',
+  'M4 20c0-4 3.5-7 8-7s8 3 8 7'
+])
 </script>
 
 

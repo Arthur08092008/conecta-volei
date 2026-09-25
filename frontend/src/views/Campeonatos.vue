@@ -1,6 +1,5 @@
 <template>
   <div class="layout">
-    <Sidebar />
 
     <!-- MENU LATERAL -->
     <Sidebar />
@@ -9,12 +8,26 @@
     <main class="main-content">
 
       <div class="page-header">
-        <div>
+        <div class="header-info">
           <h1>Campeonatos</h1>
 
           <p>
             {{ campeonatos.length }} campeonato(s) cadastrado(s)
           </p>
+
+          <!-- BOTÃO VOLTAR -->
+          <button
+            class="btn-voltar"
+            type="button"
+            @click="voltar"
+          >
+            <Icon
+              icon="carbon:return"
+              width="24"
+              height="24"
+            />
+            <span>Voltar</span>
+          </button>
         </div>
 
         <button
@@ -130,12 +143,16 @@
 
 <script>
 import Sidebar from '../components/Sidebar.vue'
+import { Icon } from '@iconify/vue'
 
 export default {
   name: 'Campeonatos',
+
   components: {
     Sidebar,
+    Icon,
   },
+
   data() {
     return {
       campeonatos: [],
@@ -149,6 +166,10 @@ export default {
   },
 
   methods: {
+
+    voltar() {
+      window.history.back()
+    },
 
     async carregarCampeonatos() {
 
@@ -267,10 +288,20 @@ export default {
 </script>
 
 <style scoped>
+
 .layout {
   display: flex;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
   background: #f4f5f9;
   color: #1a1a2e;
 }
@@ -291,7 +322,6 @@ main {
 ================================= */
 
 .page-header {
-
   display: flex;
 
   justify-content: space-between;
@@ -301,8 +331,13 @@ main {
   margin-bottom: 28px;
 }
 
-.page-header h1 {
+.header-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
 
+.page-header h1 {
   font-size: 32px;
 
   font-weight: 800;
@@ -313,7 +348,6 @@ main {
 }
 
 .page-header p {
-
   margin: 0;
 
   color: #6b7280;
@@ -322,11 +356,54 @@ main {
 }
 
 /* =================================
-   BOTÃO
+   BOTÃO VOLTAR
+================================= */
+
+.btn-voltar {
+  width: 150px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-top: 18px;
+
+  padding: 11px 16px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: #6c757d;
+
+  color: #fff;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+
+.btn-voltar:hover {
+  background: #5c636a;
+
+  transform: translateY(-1px);
+}
+
+/* =================================
+   BOTÃO NOVO CAMPEONATO
 ================================= */
 
 .btn-primary {
-
   background: #101c46;
 
   color: #fff;
@@ -347,7 +424,6 @@ main {
 }
 
 .btn-primary:hover {
-
   background: #16224f;
 }
 
@@ -356,7 +432,6 @@ main {
 ================================= */
 
 .card {
-
   background: #fff;
 
   border-radius: 14px;
@@ -371,14 +446,12 @@ main {
 ================================= */
 
 table {
-
   width: 100%;
 
   border-collapse: collapse;
 }
 
 thead th {
-
   text-align: left;
 
   font-size: 12px;
@@ -395,7 +468,6 @@ thead th {
 }
 
 tbody td {
-
   padding: 18px 24px;
 
   font-size: 15px;
@@ -404,7 +476,6 @@ tbody td {
 }
 
 tbody tr:last-child td {
-
   border-bottom: none;
 }
 
@@ -413,7 +484,6 @@ tbody tr:last-child td {
 ================================= */
 
 .nome-cell {
-
   font-weight: 700;
 
   color: #101c46;
@@ -421,7 +491,6 @@ tbody tr:last-child td {
 
 .periodo-cell,
 .equipes-cell {
-
   color: #6b7280;
 
   font-size: 14px;
@@ -432,7 +501,6 @@ tbody tr:last-child td {
 ================================= */
 
 .badge {
-
   display: inline-block;
 
   padding: 6px 14px;
@@ -447,28 +515,24 @@ tbody tr:last-child td {
 }
 
 .badge-purple {
-
   background: #e7e6fb;
 
   color: #4b3fd1;
 }
 
 .badge-green {
-
   background: #e3f8ea;
 
   color: #1f9d55;
 }
 
 .badge-gray {
-
   background: #eef0f4;
 
   color: #6b7280;
 }
 
 .badge-gold {
-
   background: #fdf1dc;
 
   color: #a06600;
@@ -479,14 +543,12 @@ tbody tr:last-child td {
 ================================= */
 
 .actions-cell {
-
   display: flex;
 
   justify-content: flex-end;
 }
 
 .btn-excluir {
-
   background: #fde7e9;
 
   color: #d1435b;
@@ -505,7 +567,6 @@ tbody tr:last-child td {
 }
 
 .btn-excluir:hover {
-
   background: #f8d5d9;
 }
 
@@ -514,7 +575,6 @@ tbody tr:last-child td {
 ================================= */
 
 .empty-state {
-
   padding: 60px 24px;
 
   text-align: center;
@@ -527,14 +587,12 @@ tbody tr:last-child td {
 ================================= */
 
 .msg {
-
   padding: 24px;
 
   color: #6b7280;
 }
 
 .msg.erro {
-
   color: #d1435b;
 }
 
@@ -545,7 +603,6 @@ tbody tr:last-child td {
 @media (max-width: 900px) {
 
   .main-content {
-
     padding: 24px;
   }
 
@@ -554,24 +611,28 @@ tbody tr:last-child td {
 @media (max-width: 700px) {
 
   .page-header {
-
     flex-direction: column;
 
     gap: 16px;
   }
 
-  .btn-primary {
+  .header-info {
+    width: 100%;
+  }
 
+  .btn-voltar {
+    width: 100%;
+  }
+
+  .btn-primary {
     width: 100%;
   }
 
   .card {
-
     overflow-x: auto;
   }
 
   table {
-
     min-width: 700px;
   }
 
