@@ -42,9 +42,9 @@
           <label for="formato">Formato de disputa</label>
           <select id="formato" v-model="form.formato" required>
             <option disabled value="">Selecione</option>
-            <option>Fase de grupos</option>
-            <option>Eliminatória simples</option>
-            <option>Todos contra todos</option>
+            <option value="GRUPOS">Fase de grupos</option>
+            <option value="MATA_MATA">Eliminatória (mata-mata)</option>
+            <option value="MISTO">Misto (grupos + mata-mata)</option>
           </select>
         </div>
 
@@ -63,9 +63,10 @@
         <div class="campo">
           <label for="status">Status</label>
           <select id="status" v-model="form.status">
-            <option>Em breve</option>
-            <option>Em andamento</option>
-            <option>Encerrado</option>
+            <option value="planejado">Planejado</option>
+            <option value="em andamento">Em andamento</option>
+            <option value="finalizado">Finalizado</option>
+            <option value="cancelado">Cancelado</option>
           </select>
         </div>
 
@@ -82,7 +83,7 @@
         <p v-if="erro" class="msg-erro">{{ erro }}</p>
 
         <div class="acoes">
-          <button type="button" class="btn-secundario" @click="cancelar">Cancelar</button>
+          <button type="button" class="btn-secundario" @click="cancelar">Voltar</button>
           <button type="submit" class="btn-primario" :disabled="salvando">
             {{ salvando ? 'Salvando...' : 'Salvar campeonato' }}
           </button>
@@ -105,7 +106,7 @@ export default {
         data_fim: '',
         formato: '',
         max_equipes: null,
-        status: 'Em breve',
+        status: 'planejado',
         regulamento: ''
       },
       salvando: false,

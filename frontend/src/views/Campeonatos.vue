@@ -1,5 +1,6 @@
 <template>
   <div class="layout">
+    <Sidebar />
 
     <!-- MENU LATERAL -->
     <Sidebar />
@@ -132,11 +133,9 @@ import Sidebar from '../components/Sidebar.vue'
 
 export default {
   name: 'Campeonatos',
-
   components: {
-    Sidebar
+    Sidebar,
   },
-
   data() {
     return {
       campeonatos: [],
@@ -268,31 +267,15 @@ export default {
 </script>
 
 <style scoped>
-
 .layout {
   display: flex;
   min-height: 100vh;
-  width: 100%;
-
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: #f4f5f9;
-
   color: #1a1a2e;
-
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Helvetica,
-    Arial,
-    sans-serif;
 }
 
-/* =================================
-   CONTEÚDO
-================================= */
-
-.main-content {
+main {
   flex: 1;
   min-width: 0;
 

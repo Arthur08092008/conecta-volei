@@ -1,7 +1,6 @@
 <template>
   <div class="app-shell">
-    <!-- Menu lateral (igual ao Inicio.vue) -->
-    <Sidebar/>
+    <Sidebar />
 
     <!-- Conteúdo principal -->
     <main class="content">
@@ -239,15 +238,6 @@ td {
 @media (max-width: 900px) {
   .app-shell {
     flex-direction: column;
-  }
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    align-items: center;
-    overflow-x: auto;
-  }
-  .sidebar-nav {
-    flex-direction: row;
   }
   .tabela-wrap {
     overflow-x: auto;
