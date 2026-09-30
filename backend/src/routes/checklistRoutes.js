@@ -1,7 +1,7 @@
 // routes/checklistRoutes.js
 const express = require('express');
 const router = express.Router();
-const checklistController = require('../controllers/checklistController');
+const checklistController = require('../controllers/checklistControllers');
 
 router.get('/:partidaId', checklistController.listarPorPartida);
 router.post('/:partidaId', checklistController.criar);

@@ -1,21 +1,25 @@
+```vue
 <template>
   <div class="app-shell">
+
     <Sidebar />
 
-    <!-- Conteúdo principal -->
     <main class="content">
+
+      <!-- TOPO -->
       <div class="topo">
+
         <div class="titulo-area">
+
           <h1>Times</h1>
 
           <p class="subtitulo">
             {{ times.length }} time(s) cadastrado(s)
           </p>
 
-          <!-- BOTÃO VOLTAR -->
           <button
-            class="btn-voltar"
             type="button"
+            class="btn-voltar"
             @click="voltar"
           >
             <Icon
@@ -23,8 +27,10 @@
               width="24"
               height="24"
             />
+
             <span>Voltar</span>
           </button>
+
         </div>
 
         <RouterLink
@@ -33,38 +39,45 @@
         >
           + Novo time
         </RouterLink>
+
       </div>
 
-      <p
+      <!-- CARREGANDO -->
+      <div
         v-if="carregando"
         class="msg"
       >
         Carregando times...
-      </p>
+      </div>
 
-      <p
+      <!-- ERRO -->
+      <div
         v-else-if="erro"
         class="msg erro"
       >
         {{ erro }}
-      </p>
+      </div>
 
-      <p
+      <!-- NENHUM TIME -->
+      <div
         v-else-if="times.length === 0"
         class="msg"
       >
-        Nenhum time cadastrado ainda.
+        <p>Nenhum time cadastrado ainda.</p>
 
         <RouterLink to="/times/cadastro">
           Cadastrar o primeiro
         </RouterLink>
-      </p>
+      </div>
 
+      <!-- TABELA -->
       <div
         v-else
         class="tabela-wrap"
       >
+
         <table>
+
           <thead>
             <tr>
               <th>Nome</th>
@@ -72,34 +85,37 @@
               <th>Categoria</th>
               <th>Técnico</th>
               <th>Contato</th>
-              <th></th>
+              <th>Ações</th>
             </tr>
           </thead>
 
           <tbody>
+
             <tr
               v-for="time in times"
               :key="time.id"
             >
+
               <td class="nome">
-                {{ time.nome }}
+                {{ time.nome || '—' }}
               </td>
 
               <td>
-                {{ time.cidade }}
+                {{ time.cidade || '—' }}
               </td>
 
               <td>
                 <span class="badge">
-                  {{ time.categoria }}
+                  {{ time.categoria || '—' }}
                 </span>
               </td>
 
               <td>
-                {{ time.tecnico }}
+                {{ time.tecnico || '—' }}
               </td>
 
               <td class="contato">
+
                 <span v-if="time.email">
                   {{ time.email }}
                 </span>
@@ -109,29 +125,35 @@
                 </span>
 
                 <span
-                  v-if="
-                    !time.email &&
-                    !time.telefone
-                  "
+                  v-if="!time.email && !time.telefone"
                 >
                   —
                 </span>
+
               </td>
 
               <td class="acoes">
+
                 <button
-                  class="btn-icone"
-                  title="Excluir"
+                  type="button"
+                  class="btn-excluir"
                   @click="confirmarExclusao(time)"
                 >
                   Excluir
                 </button>
+
               </td>
+
             </tr>
+
           </tbody>
+
         </table>
+
       </div>
+
     </main>
+
   </div>
 </template>
 
@@ -166,18 +188,25 @@ async function carregarTimes() {
   try {
     const resposta = await api.get('/times');
 
-    times.value = resposta.data.times;
+    console.log('Resposta da API:', resposta.data);
+
+    if (Array.isArray(resposta.data)) {
+      times.value = resposta.data;
+    } else if (Array.isArray(resposta.data.times)) {
+      times.value = resposta.data.times;
+    } else {
+      times.value = [];
+    }
 
   } catch (e) {
+    console.error('Erro ao carregar times:', e);
 
     erro.value =
       e.response?.data?.mensagem ||
+      e.response?.data?.message ||
       'Não foi possível carregar os times.';
-
   } finally {
-
     carregando.value = false;
-
   }
 }
 
@@ -197,35 +226,36 @@ async function confirmarExclusao(time) {
 
   try {
 
-    await api.delete(
-      `/times/${time.id}`
-    );
+    await api.delete(`/times/${time.id}`);
 
-    times.value =
-      times.value.filter(
-        (t) => t.id !== time.id
-      );
+    times.value = times.value.filter(
+      (item) => item.id !== time.id
+    );
 
   } catch (e) {
 
+    console.error('Erro ao excluir time:', e);
+
     erro.value =
       e.response?.data?.mensagem ||
+      e.response?.data?.message ||
       'Não foi possível excluir o time.';
-
   }
 }
+
+/* ================================
+   INICIAR
+================================ */
 
 onMounted(carregarTimes);
 </script>
 
 <style scoped>
+
 .app-shell {
   min-height: 100vh;
-
   display: flex;
-
   background: #f5f6fa;
-
   font-family:
     'Segoe UI',
     system-ui,
@@ -233,119 +263,95 @@ onMounted(carregarTimes);
     sans-serif;
 }
 
-/* =================================
+/* ================================
    CONTEÚDO
-================================= */
+================================ */
 
 .content {
   flex: 1;
-
   padding: 32px;
-
   overflow-y: auto;
+  box-sizing: border-box;
 }
 
-/* =================================
+/* ================================
    TOPO
-================================= */
+================================ */
 
 .topo {
   display: flex;
-
   align-items: flex-start;
-
   justify-content: space-between;
-
   margin-bottom: 24px;
 }
 
 .titulo-area {
   display: flex;
-
   flex-direction: column;
-
   align-items: flex-start;
 }
 
 h1 {
-  color: #0b1f4d;
-
-  font-size: 26px;
-
-  font-weight: 800;
-
   margin: 0;
+  color: #0b1f4d;
+  font-size: 26px;
+  font-weight: 800;
 }
 
 .subtitulo {
+  margin: 4px 0 0;
   color: #6b7280;
-
   font-size: 14px;
-
-  margin-top: 4px;
 }
 
-/* =================================
-   BOTÃO VOLTAR
-================================= */
+/* ================================
+   VOLTAR
+================================ */
 
 .btn-voltar {
   width: 150px;
+  margin-top: 18px;
 
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   gap: 8px;
-
-  margin-top: 18px;
 
   padding: 11px 16px;
 
   border: none;
-
   border-radius: 8px;
 
   background: #6c757d;
-
-  color: #fff;
+  color: white;
 
   font-size: 14px;
-
   font-weight: 700;
 
   cursor: pointer;
-
-  transition:
-    background 0.2s,
-    transform 0.2s;
 }
 
 .btn-voltar:hover {
   background: #5c636a;
-
-  transform: translateY(-1px);
 }
 
-/* =================================
-   BOTÃO NOVO
-================================= */
+/* ================================
+   NOVO TIME
+================================ */
 
 .btn-novo {
-  background: #0b1f4d;
-
-  color: #fff;
-
-  text-decoration: none;
+  display: inline-block;
 
   padding: 12px 20px;
 
   border-radius: 10px;
 
-  font-size: 14.5px;
+  background: #0b1f4d;
+  color: white;
 
+  text-decoration: none;
+
+  font-size: 14.5px;
   font-weight: 700;
 }
 
@@ -353,22 +359,29 @@ h1 {
   background: #122f6b;
 }
 
-/* =================================
+/* ================================
    MENSAGENS
-================================= */
+================================ */
 
 .msg {
-  color: #6b7280;
-
-  font-size: 14.5px;
-
-  background: #fff;
-
   padding: 24px;
 
   border-radius: 14px;
 
+  background: white;
+
+  color: #6b7280;
+
+  font-size: 14.5px;
+
   text-align: center;
+
+  box-shadow:
+    0 4px 16px rgba(20, 30, 60, 0.05);
+}
+
+.msg p {
+  margin-top: 0;
 }
 
 .msg.erro {
@@ -377,29 +390,34 @@ h1 {
 
 .msg a {
   color: #0b1f4d;
-
   font-weight: 700;
+  text-decoration: none;
 }
 
-/* =================================
+.msg a:hover {
+  text-decoration: underline;
+}
+
+/* ================================
    TABELA
-================================= */
+================================ */
 
 .tabela-wrap {
-  background: #fff;
+  width: 100%;
+
+  background: white;
 
   border-radius: 16px;
 
-  overflow: hidden;
+  overflow-x: auto;
 
   box-shadow:
-    0 4px 16px
-    rgba(20, 30, 60, 0.06);
+    0 4px 16px rgba(20, 30, 60, 0.06);
 }
 
 table {
   width: 100%;
-
+  min-width: 800px;
   border-collapse: collapse;
 }
 
@@ -408,19 +426,17 @@ thead {
 }
 
 th {
-  text-align: left;
-
   padding: 14px 20px;
 
-  font-size: 12.5px;
-
-  text-transform: uppercase;
-
-  letter-spacing: 0.03em;
+  text-align: left;
 
   color: #6b7280;
 
+  font-size: 12.5px;
+
   font-weight: 700;
+
+  text-transform: uppercase;
 }
 
 td {
@@ -428,84 +444,80 @@ td {
 
   border-top: 1px solid #eef0f5;
 
-  font-size: 14.5px;
-
   color: #1f2937;
+
+  font-size: 14.5px;
 }
 
 .nome {
-  font-weight: 700;
-
   color: #0b1f4d;
+  font-weight: 700;
 }
 
-/* =================================
-   BADGE
-================================= */
+/* ================================
+   CATEGORIA
+================================ */
 
 .badge {
-  background: #e6ecfb;
-
-  color: #2f4bb0;
+  display: inline-block;
 
   padding: 4px 10px;
 
   border-radius: 999px;
+
+  background: #e6ecfb;
+
+  color: #2f4bb0;
 
   font-size: 12.5px;
 
   font-weight: 700;
 }
 
-/* =================================
+/* ================================
    CONTATO
-================================= */
+================================ */
 
 .contato {
   display: flex;
-
   flex-direction: column;
-
   gap: 2px;
 
-  font-size: 13px;
-
   color: #6b7280;
+
+  font-size: 13px;
 }
 
-/* =================================
+/* ================================
    AÇÕES
-================================= */
+================================ */
 
 .acoes {
   text-align: right;
 }
 
-.btn-icone {
-  background: #fdeceb;
-
-  color: #d93025;
-
-  border: none;
-
-  border-radius: 8px;
-
+.btn-excluir {
   padding: 7px 14px;
 
-  font-size: 13px;
+  border: none;
+  border-radius: 8px;
 
+  background: #fdeceb;
+  color: #d93025;
+
+  font-size: 13px;
   font-weight: 700;
 
   cursor: pointer;
 }
 
-.btn-icone:hover {
+.btn-excluir:hover {
   background: #fbdcda;
 }
 
-/* =================================
+/* ================================
    RESPONSIVO
-================================= */
+================================ */
 
 @media (max-width: 900px) {
 
@@ -513,8 +525,8 @@ td {
     flex-direction: column;
   }
 
-  .tabela-wrap {
-    overflow-x: auto;
+  .content {
+    width: 100%;
   }
 
 }
@@ -522,12 +534,11 @@ td {
 @media (max-width: 650px) {
 
   .content {
-    padding: 24px;
+    padding: 24px 16px;
   }
 
   .topo {
     flex-direction: column;
-
     gap: 16px;
   }
 
@@ -541,11 +552,10 @@ td {
 
   .btn-novo {
     width: 100%;
-
     text-align: center;
-
     box-sizing: border-box;
   }
 
 }
+
 </style>

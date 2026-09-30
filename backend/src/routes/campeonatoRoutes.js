@@ -1,7 +1,7 @@
 // routes/campeonatoRoutes.js
 const express = require('express');
 const router = express.Router();
-const campeonatoController = require('../controllers/campeonatoController');
+const campeonatoController = require('../controllers/campeonatoControllers');
 
 router.post('/', campeonatoController.criar);
 router.get('/', campeonatoController.listar);

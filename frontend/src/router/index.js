@@ -5,7 +5,6 @@ import Cadastro from '../views/Cadastrar.vue';
 import CadastroTimes from '../views/CadastroTimes.vue';
 import Inicio from '../views/Inicio.vue';
 import ListaTimes from '../views/ListaTimes.vue';
-import Partidas from '../views/Partidas.vue';
 import Campeonatos from '../views/Campeonatos.vue';
 import CadastroCampeonato from '../views/CadastroCampeonato.vue';
 import Agendas from '../views/Agendas.vue';
@@ -46,13 +45,6 @@ const routes = [
     path: '/times/cadastro',
     name: 'cadastro-times',
     component: CadastroTimes,
-  },
-
-  // Partidas
-  {
-    path: '/partidas',
-    name: 'partidas',
-    component: Partidas,
   },
 
   // Campeonatos

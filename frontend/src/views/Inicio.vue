@@ -1,4 +1,3 @@
-```vue
 <template>
   <div class="app-shell">
 
@@ -74,55 +73,55 @@
       <section class="stats">
 
         <!-- TIMES -->
-        <div class="stat-card">
+        <RouterLink to="/times" class="stat-card">
 
           <div class="stat-icon stat-icon-blue">
             <IconUser />
           </div>
 
           <div class="stat-value">
-            {{ resumo.times }}
+            {{ carregando ? '–' : resumo.times }}
           </div>
 
           <div class="stat-label">
             Times
           </div>
 
-        </div>
+        </RouterLink>
 
         <!-- CAMPEONATOS -->
-        <div class="stat-card">
+        <RouterLink to="/campeonatos" class="stat-card">
 
           <div class="stat-icon stat-icon-yellow">
             <IconTrophy />
           </div>
 
           <div class="stat-value">
-            {{ resumo.campeonatos }}
+            {{ carregando ? '–' : resumo.campeonatos }}
           </div>
 
           <div class="stat-label">
             Campeonatos
           </div>
 
-        </div>
+        </RouterLink>
 
         <!-- PARTIDAS -->
-        <div class="stat-card">
+        <RouterLink to="/agendas" class="stat-card">
 
           <div class="stat-icon stat-icon-green">
             <IconCalendar />
           </div>
 
           <div class="stat-value">
-            {{ resumo.partidasAtivas }}
+            {{ carregando ? '–' : resumo.partidasAtivas }}
           </div>
 
           <div class="stat-label">
             Partidas ativas
           </div>
 
-        </div>
+        </RouterLink>
 
       </section>
 
@@ -132,8 +131,9 @@
 </template>
 
 <script setup>
-import { ref, h } from 'vue'
+import { ref, h, onMounted, onBeforeUnmount } from 'vue'
 import { RouterLink } from 'vue-router'
+import api from '../services/api'
 import Sidebar from '../components/Sidebar.vue'
 
 
@@ -141,10 +141,99 @@ import Sidebar from '../components/Sidebar.vue'
    DADOS DO RESUMO
 ========================= */
 
+const carregando = ref(true)
+
 const resumo = ref({
-  times: 3,
-  campeonatos: 2,
-  partidasAtivas: 1,
+  times: 0,
+  campeonatos: 0,
+  partidasAtivas: 0,
+})
+
+
+/* =========================
+   HELPERS
+========================= */
+
+function contar(resposta) {
+  return Array.isArray(resposta.data) ? resposta.data.length : 0
+}
+
+function hojeFormatado() {
+  const agora = new Date()
+
+  return `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}-${String(agora.getDate()).padStart(2, '0')}`
+}
+
+
+/* =========================
+   CARREGAR RESUMO
+========================= */
+
+async function carregarResumo(silencioso = false) {
+  if (!silencioso) {
+    carregando.value = true
+  }
+
+  const hojeStr = hojeFormatado()
+
+  const [times, campeonatos, partidas] = await Promise.allSettled([
+    api.get('/times'),
+    api.get('/campeonatos'),
+    api.get('/partidas'),
+  ])
+
+  if (times.status === 'fulfilled') {
+    resumo.value.times = contar(times.value)
+  } else {
+    console.error('Erro ao carregar times:', times.reason)
+  }
+
+  if (campeonatos.status === 'fulfilled') {
+    resumo.value.campeonatos = contar(campeonatos.value)
+  } else {
+    console.error('Erro ao carregar campeonatos:', campeonatos.reason)
+  }
+
+  if (partidas.status === 'fulfilled') {
+    const lista = Array.isArray(partidas.value.data)
+      ? partidas.value.data
+      : []
+
+    // Partidas ativas = jogos de hoje em diante
+    resumo.value.partidasAtivas = lista.filter((p) => {
+      const data =
+        p.data_jogo ??
+        (typeof p.data === 'string' ? p.data.slice(0, 10) : '')
+
+      return data >= hojeStr
+    }).length
+  } else {
+    console.error('Erro ao carregar partidas:', partidas.reason)
+  }
+
+  carregando.value = false
+}
+
+function atualizarEmSilencio() {
+  carregarResumo(true)
+}
+
+function aoMudarVisibilidade() {
+  if (document.visibilityState === 'visible') {
+    atualizarEmSilencio()
+  }
+}
+
+onMounted(() => {
+  carregarResumo()
+
+  window.addEventListener('focus', atualizarEmSilencio)
+  document.addEventListener('visibilitychange', aoMudarVisibilidade)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('focus', atualizarEmSilencio)
+  document.removeEventListener('visibilitychange', aoMudarVisibilidade)
 })
 
 
@@ -410,14 +499,32 @@ const IconUser = svgIcon([
 
 
 .stat-card {
+  display: block;
+
   background: #fff;
 
   border-radius: 16px;
 
   padding: 22px 24px;
 
+  color: inherit;
+
+  text-decoration: none;
+
   box-shadow:
     0 4px 16px rgba(20, 30, 60, 0.06);
+
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+
+
+.stat-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 22px rgba(20, 30, 60, 0.1);
 }
 
 

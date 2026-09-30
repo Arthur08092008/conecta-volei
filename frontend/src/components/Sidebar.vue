@@ -66,12 +66,7 @@ const IconUser = svgIcon(['M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2', 'M12 11a4
         <component :is="IconCalendar" />
         <span>Agendas</span>
       </router-link>
-
-      <router-link to="/partidas" class="nav-item" active-class="nav-item-active">
-        <component :is="IconTable" />
-        <span>Partidas</span>
-      </router-link>
-
+      
       <router-link to="/checklist" class="nav-item" active-class="nav-item-active">
         <component :is="IconChecklist" />
         <span>Checklist</span>

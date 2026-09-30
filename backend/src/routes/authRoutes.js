@@ -5,7 +5,7 @@ const router = express.Router();
 const {
   cadastrar,
   login
-} = require('../controllers/authController');
+} = require('../controllers/authControllers');
 
 // Cadastro
 router.post('/cadastro', cadastrar);

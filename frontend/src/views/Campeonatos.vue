@@ -8,11 +8,13 @@
     <main class="main-content">
 
       <div class="page-header">
+
         <div class="header-info">
+
           <h1>Campeonatos</h1>
 
           <p>
-            {{ campeonatos.length }} campeonato(s) cadastrado(s)
+            {{ campeonatos.length }} campeonato(s) público(s) cadastrado(s)
           </p>
 
           <!-- BOTÃO VOLTAR -->
@@ -26,16 +28,21 @@
               width="24"
               height="24"
             />
+
             <span>Voltar</span>
           </button>
+
         </div>
 
+        <!-- NOVO CAMPEONATO -->
         <button
           class="btn-primary"
+          type="button"
           @click="irParaCadastro"
         >
           + Novo campeonato
         </button>
+
       </div>
 
       <!-- CARREGANDO -->
@@ -43,7 +50,7 @@
         v-if="carregando"
         class="msg"
       >
-        Carregando campeonatos...
+        Carregando campeonatos públicos...
       </p>
 
       <!-- ERRO -->
@@ -60,7 +67,8 @@
         class="card"
       >
 
-        <table>
+        <table v-if="campeonatos.length > 0">
+
           <thead>
             <tr>
               <th>NOME</th>
@@ -79,59 +87,90 @@
               :key="c.id"
             >
 
+              <!-- NOME -->
               <td class="nome-cell">
                 {{ c.nome }}
               </td>
 
+              <!-- PERÍODO -->
               <td class="periodo-cell">
+
                 {{ formatarData(c.data_inicio) }}
+
                 -
+
                 {{ formatarData(c.data_fim) }}
+
               </td>
 
+              <!-- FORMATO -->
               <td>
+
                 <span class="badge badge-gold">
                   {{ c.formato }}
                 </span>
+
               </td>
 
+              <!-- EQUIPES -->
               <td class="equipes-cell">
+
                 {{ c.max_equipes }} equipes
+
               </td>
 
+              <!-- STATUS -->
               <td>
+
                 <span
                   class="badge"
                   :class="classeStatus(c.status)"
                 >
                   {{ c.status }}
                 </span>
+
               </td>
 
+              <!-- AÇÕES -->
               <td>
+
                 <div class="actions-cell">
 
                   <button
                     class="btn-excluir"
+                    type="button"
                     @click="excluirCampeonato(c.id)"
                   >
                     Excluir
                   </button>
 
                 </div>
+
               </td>
 
             </tr>
 
           </tbody>
+
         </table>
 
-        <!-- NENHUM CAMPEONATO -->
+        <!-- NENHUM CAMPEONATO PÚBLICO -->
         <div
-          v-if="campeonatos.length === 0"
+          v-else
           class="empty-state"
         >
-          Nenhum campeonato cadastrado ainda.
+          <div class="empty-icon">
+            🏆
+          </div>
+
+          <h3>
+            Nenhum campeonato público
+          </h3>
+
+          <p>
+            Ainda não existem campeonatos publicados.
+          </p>
+
         </div>
 
       </div>
@@ -141,39 +180,62 @@
   </div>
 </template>
 
+
 <script>
+
 import Sidebar from '../components/Sidebar.vue'
 import { Icon } from '@iconify/vue'
 
 export default {
+
   name: 'Campeonatos',
 
   components: {
     Sidebar,
-    Icon,
+    Icon
   },
 
   data() {
+
     return {
+
       campeonatos: [],
+
       carregando: true,
+
       erro: null
+
     }
+
   },
 
   mounted() {
+
     this.carregarCampeonatos()
+
   },
 
   methods: {
 
+    // ==========================================
+    // VOLTAR
+    // ==========================================
+
     voltar() {
+
       window.history.back()
+
     },
+
+
+    // ==========================================
+    // CARREGAR CAMPEONATOS
+    // ==========================================
 
     async carregarCampeonatos() {
 
       this.carregando = true
+
       this.erro = null
 
       try {
@@ -183,36 +245,62 @@ export default {
         )
 
         if (!resposta.ok) {
+
           throw new Error(
-            'Falha ao buscar campeonatos'
+            `Erro HTTP: ${resposta.status}`
           )
+
         }
 
-        this.campeonatos =
-          await resposta.json()
+        const dados = await resposta.json()
+
+        /*
+         * MOSTRA SOMENTE CAMPEONATOS PÚBLICOS
+         *
+         * A API deve retornar:
+         *
+         * publico: true
+         *
+         * para campeonatos públicos.
+         */
+
+        this.campeonatos = dados.filter(
+          campeonato => campeonato.publico === true
+        )
 
       } catch (e) {
 
+        console.error(
+          'Erro ao carregar campeonatos:',
+          e
+        )
+
         this.erro =
           'Não foi possível carregar os campeonatos.'
-
-        console.error(e)
 
       } finally {
 
         this.carregando = false
 
       }
+
     },
+
+
+    // ==========================================
+    // EXCLUIR CAMPEONATO
+    // ==========================================
 
     async excluirCampeonato(id) {
 
-      if (
-        !confirm(
-          'Deseja realmente excluir este campeonato?'
-        )
-      ) {
+      const confirmar = confirm(
+        'Deseja realmente excluir este campeonato?'
+      )
+
+      if (!confirmar) {
+
         return
+
       }
 
       try {
@@ -225,25 +313,43 @@ export default {
         )
 
         if (!resposta.ok) {
+
           throw new Error(
-            'Falha ao excluir campeonato'
+            `Erro HTTP: ${resposta.status}`
           )
+
         }
+
+        /*
+         * Remove o campeonato da tela
+         * depois da exclusão.
+         */
 
         this.campeonatos =
           this.campeonatos.filter(
-            c => c.id !== id
+            campeonato =>
+              campeonato.id !== id
           )
 
       } catch (e) {
+
+        console.error(
+          'Erro ao excluir campeonato:',
+          e
+        )
 
         alert(
           'Erro ao excluir campeonato.'
         )
 
-        console.error(e)
       }
+
     },
+
+
+    // ==========================================
+    // IR PARA CADASTRO
+    // ==========================================
 
     irParaCadastro() {
 
@@ -253,10 +359,17 @@ export default {
 
     },
 
+
+    // ==========================================
+    // FORMATAR DATA
+    // ==========================================
+
     formatarData(dataStr) {
 
       if (!dataStr) {
+
         return '-'
+
       }
 
       const data =
@@ -268,29 +381,53 @@ export default {
           timeZone: 'UTC'
         }
       )
+
     },
+
+
+    // ==========================================
+    // CLASSE DO STATUS
+    // ==========================================
 
     classeStatus(status) {
 
-      if (status === 'Em andamento') {
+      if (
+        status === 'Em andamento'
+      ) {
+
         return 'badge-green'
+
       }
 
-      if (status === 'Encerrado') {
+      if (
+        status === 'Encerrado'
+      ) {
+
         return 'badge-gray'
+
       }
 
       return 'badge-purple'
+
     }
 
   }
+
 }
+
 </script>
+
 
 <style scoped>
 
+/* =================================
+   LAYOUT
+================================= */
+
 .layout {
+
   display: flex;
+
   min-height: 100vh;
 
   font-family:
@@ -303,11 +440,20 @@ export default {
     sans-serif;
 
   background: #f4f5f9;
+
   color: #1a1a2e;
+
 }
 
-main {
+
+/* =================================
+   CONTEÚDO PRINCIPAL
+================================= */
+
+.main-content {
+
   flex: 1;
+
   min-width: 0;
 
   padding: 40px 48px;
@@ -315,13 +461,16 @@ main {
   box-sizing: border-box;
 
   overflow-x: auto;
+
 }
+
 
 /* =================================
    CABEÇALHO
 ================================= */
 
 .page-header {
+
   display: flex;
 
   justify-content: space-between;
@@ -329,15 +478,23 @@ main {
   align-items: flex-start;
 
   margin-bottom: 28px;
+
 }
+
 
 .header-info {
+
   display: flex;
+
   flex-direction: column;
+
   align-items: flex-start;
+
 }
 
+
 .page-header h1 {
+
   font-size: 32px;
 
   font-weight: 800;
@@ -345,21 +502,27 @@ main {
   margin: 0 0 6px 0;
 
   color: #101c46;
+
 }
 
+
 .page-header p {
+
   margin: 0;
 
   color: #6b7280;
 
   font-size: 15px;
+
 }
+
 
 /* =================================
    BOTÃO VOLTAR
 ================================= */
 
 .btn-voltar {
+
   width: 150px;
 
   display: flex;
@@ -391,19 +554,25 @@ main {
   transition:
     background 0.2s,
     transform 0.2s;
+
 }
 
+
 .btn-voltar:hover {
+
   background: #5c636a;
 
   transform: translateY(-1px);
+
 }
+
 
 /* =================================
    BOTÃO NOVO CAMPEONATO
 ================================= */
 
 .btn-primary {
+
   background: #101c46;
 
   color: #fff;
@@ -421,17 +590,23 @@ main {
   cursor: pointer;
 
   white-space: nowrap;
+
 }
 
+
 .btn-primary:hover {
+
   background: #16224f;
+
 }
+
 
 /* =================================
    CARD
 ================================= */
 
 .card {
+
   background: #fff;
 
   border-radius: 14px;
@@ -439,19 +614,25 @@ main {
   overflow: hidden;
 
   border: 1px solid #e7e8ef;
+
 }
+
 
 /* =================================
    TABELA
 ================================= */
 
 table {
+
   width: 100%;
 
   border-collapse: collapse;
+
 }
 
+
 thead th {
+
   text-align: left;
 
   font-size: 12px;
@@ -465,42 +646,57 @@ thead th {
   background: #fafafc;
 
   border-bottom: 1px solid #e7e8ef;
+
 }
 
+
 tbody td {
+
   padding: 18px 24px;
 
   font-size: 15px;
 
   border-bottom: 1px solid #e7e8ef;
+
 }
 
+
 tbody tr:last-child td {
+
   border-bottom: none;
+
 }
+
 
 /* =================================
    CÉLULAS
 ================================= */
 
 .nome-cell {
+
   font-weight: 700;
 
   color: #101c46;
+
 }
+
 
 .periodo-cell,
 .equipes-cell {
+
   color: #6b7280;
 
   font-size: 14px;
+
 }
+
 
 /* =================================
    BADGES
 ================================= */
 
 .badge {
+
   display: inline-block;
 
   padding: 6px 14px;
@@ -512,43 +708,61 @@ tbody tr:last-child td {
   font-weight: 700;
 
   white-space: nowrap;
+
 }
 
+
 .badge-purple {
+
   background: #e7e6fb;
 
   color: #4b3fd1;
+
 }
 
+
 .badge-green {
+
   background: #e3f8ea;
 
   color: #1f9d55;
+
 }
 
+
 .badge-gray {
+
   background: #eef0f4;
 
   color: #6b7280;
+
 }
 
+
 .badge-gold {
+
   background: #fdf1dc;
 
   color: #a06600;
+
 }
+
 
 /* =================================
    AÇÕES
 ================================= */
 
 .actions-cell {
+
   display: flex;
 
   justify-content: flex-end;
+
 }
 
+
 .btn-excluir {
+
   background: #fde7e9;
 
   color: #d1435b;
@@ -564,37 +778,80 @@ tbody tr:last-child td {
   font-weight: 700;
 
   cursor: pointer;
+
 }
+
 
 .btn-excluir:hover {
+
   background: #f8d5d9;
+
 }
 
+
 /* =================================
-   VAZIO
+   ESTADO VAZIO
 ================================= */
 
 .empty-state {
-  padding: 60px 24px;
+
+  padding: 70px 24px;
 
   text-align: center;
 
   color: #6b7280;
+
 }
+
+
+.empty-icon {
+
+  font-size: 48px;
+
+  margin-bottom: 12px;
+
+}
+
+
+.empty-state h3 {
+
+  margin: 0 0 8px;
+
+  color: #101c46;
+
+  font-size: 20px;
+
+}
+
+
+.empty-state p {
+
+  margin: 0;
+
+  color: #6b7280;
+
+}
+
 
 /* =================================
    MENSAGENS
 ================================= */
 
 .msg {
+
   padding: 24px;
 
   color: #6b7280;
+
 }
 
+
 .msg.erro {
+
   color: #d1435b;
+
 }
+
 
 /* =================================
    RESPONSIVO
@@ -603,37 +860,57 @@ tbody tr:last-child td {
 @media (max-width: 900px) {
 
   .main-content {
+
     padding: 24px;
+
   }
 
 }
 
+
 @media (max-width: 700px) {
 
   .page-header {
+
     flex-direction: column;
 
     gap: 16px;
+
   }
+
 
   .header-info {
+
     width: 100%;
+
   }
+
 
   .btn-voltar {
+
     width: 100%;
+
   }
+
 
   .btn-primary {
+
     width: 100%;
+
   }
+
 
   .card {
+
     overflow-x: auto;
+
   }
 
+
   table {
+
     min-width: 700px;
+
   }
 
 }

@@ -1,11 +1,11 @@
 const express = require('express');
-const router = express.Router();
-const timeController = require('../controllers/timeController');
+const controller = require('../controllers/timeControllers');
 
-router.get('/', timeController.listar);
-router.get('/:id', timeController.buscar);
-router.post('/', timeController.cadastrar);
-router.put('/:id', timeController.atualizar);
-router.delete('/:id', timeController.excluir);
+const router = express.Router();
+
+router.get('/', controller.listar);
+router.post('/', controller.criar);
+router.put('/:id', controller.atualizar);
+router.delete('/:id', controller.excluir);
 
 module.exports = router;

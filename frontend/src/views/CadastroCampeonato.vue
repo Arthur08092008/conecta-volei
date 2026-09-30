@@ -1,4 +1,3 @@
-```vue
 <template>
   <div class="app-shell">
 
@@ -10,14 +9,30 @@
 
         <div class="card">
 
+          <!-- SETA VOLTAR -->
+          <button
+            class="btn-voltar"
+            type="button"
+            title="Voltar"
+            @click="voltar"
+          >
+            <Icon
+              icon="carbon:chevron-left"
+              width="24"
+              height="24"
+            />
+          </button>
+
           <!-- ÍCONE -->
           <div class="icone">
+
             <svg
               width="36"
               height="36"
               viewBox="0 0 24 24"
               fill="none"
             >
+
               <path
                 d="M8 4h8v4a4 4 0 01-8 0V4z"
                 stroke="#f0a800"
@@ -65,7 +80,9 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
+
             </svg>
+
           </div>
 
           <h1>Cadastro de Campeonato</h1>
@@ -74,23 +91,10 @@
             Preencha os dados da competição
           </p>
 
-          <!-- BOTÃO VOLTAR -->
-          <button
-            class="btn-voltar"
-            type="button"
-            @click="voltar"
-          >
-            <Icon
-              icon="carbon:return"
-              width="24"
-              height="24"
-            />
-
-            <span>Voltar</span>
-          </button>
 
           <!-- FORMULÁRIO -->
           <form @submit.prevent="salvar">
+
 
             <!-- NOME -->
             <div class="campo">
@@ -236,6 +240,44 @@
             </div>
 
 
+            <!-- VISIBILIDADE -->
+            <div class="campo">
+
+              <label for="publico">
+                Visibilidade do campeonato
+              </label>
+
+              <select
+                id="publico"
+                v-model="form.publico"
+                required
+              >
+
+                <option :value="true">
+                  Público
+                </option>
+
+                <option :value="false">
+                  Privado
+                </option>
+
+              </select>
+
+              <small class="ajuda">
+
+                <span v-if="form.publico">
+                  Este campeonato ficará visível para os usuários.
+                </span>
+
+                <span v-else>
+                  Este campeonato ficará privado e não será exibido na lista pública.
+                </span>
+
+              </small>
+
+            </div>
+
+
             <!-- REGULAMENTO -->
             <div class="campo">
 
@@ -270,11 +312,13 @@
                 class="btn-primario"
                 :disabled="salvando"
               >
+
                 {{
                   salvando
                     ? 'Salvando...'
                     : 'Salvar campeonato'
                 }}
+
               </button>
 
             </div>
@@ -292,8 +336,9 @@
 
 
 <script>
-import { Icon } from '@iconify/vue';
-import Sidebar from '../components/Sidebar.vue';
+
+import { Icon } from '@iconify/vue'
+import Sidebar from '../components/Sidebar.vue'
 
 export default {
 
@@ -322,6 +367,11 @@ export default {
 
         status: 'planejado',
 
+        // NOVO
+        // true = público
+        // false = privado
+        publico: true,
+
         regulamento: ''
 
       },
@@ -330,9 +380,10 @@ export default {
 
       erro: null
 
-    };
+    }
 
   },
+
 
   methods: {
 
@@ -342,7 +393,7 @@ export default {
 
     voltar() {
 
-      window.history.back();
+      window.history.back()
 
     },
 
@@ -353,9 +404,9 @@ export default {
 
     async salvar() {
 
-      this.salvando = true;
+      this.salvando = true
 
-      this.erro = null;
+      this.erro = null
 
       try {
 
@@ -368,33 +419,51 @@ export default {
               'Content-Type': 'application/json'
             },
 
-            body: JSON.stringify(this.form)
+            body: JSON.stringify(
+              this.form
+            )
 
           }
-        );
+        )
 
 
         if (!resposta.ok) {
 
+          const mensagem =
+            await resposta.text()
+
+          console.error(
+            'Erro do servidor:',
+            mensagem
+          )
+
           throw new Error(
             'Falha ao salvar campeonato'
-          );
+          )
 
         }
 
 
-        this.$router.push('/campeonatos');
+        // Depois de salvar,
+        // volta para a lista.
+        this.$router.push(
+          '/campeonatos'
+        )
+
 
       } catch (e) {
 
         this.erro =
-          'Não foi possível salvar o campeonato. Tente novamente.';
+          'Não foi possível salvar o campeonato. Tente novamente.'
 
-        console.error(e);
+        console.error(
+          'Erro ao salvar:',
+          e
+        )
 
       } finally {
 
-        this.salvando = false;
+        this.salvando = false
 
       }
 
@@ -402,7 +471,8 @@ export default {
 
   }
 
-};
+}
+
 </script>
 
 
@@ -470,6 +540,8 @@ export default {
 
 .card {
 
+  position: relative;
+
   background: #fff;
 
   border-radius: 20px;
@@ -481,6 +553,59 @@ export default {
   max-width: 480px;
 
   box-sizing: border-box;
+
+}
+
+
+/* =========================
+   SETA VOLTAR
+========================= */
+
+.btn-voltar {
+
+  position: absolute;
+
+  top: 20px;
+
+  left: 20px;
+
+  z-index: 2;
+
+  width: 40px;
+
+  height: 40px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 1.5px solid #e7e8ef;
+
+  border-radius: 50%;
+
+  background: #fafbfd;
+
+  color: #101c46;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+
+}
+
+
+.btn-voltar:hover {
+
+  background: #eef1f6;
+
+  border-color: #101c46;
+
+  transform: translateX(-3px);
 
 }
 
@@ -547,56 +672,6 @@ h1 {
 
 
 /* =========================
-   BOTÃO VOLTAR
-========================= */
-
-.btn-voltar {
-
-  width: 100%;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 8px;
-
-  margin-bottom: 24px;
-
-  padding: 11px 16px;
-
-  border: none;
-
-  border-radius: 8px;
-
-  background: #6c757d;
-
-  color: #fff;
-
-  font-size: 14px;
-
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s,
-    transform 0.2s;
-
-}
-
-
-.btn-voltar:hover {
-
-  background: #5c636a;
-
-  transform: translateY(-1px);
-
-}
-
-
-/* =========================
    CAMPOS
 ========================= */
 
@@ -654,6 +729,25 @@ h1 {
 .campo textarea:focus {
 
   border-color: #101c46;
+
+}
+
+
+/* =========================
+   AJUDA VISIBILIDADE
+========================= */
+
+.ajuda {
+
+  display: block;
+
+  margin-top: 6px;
+
+  font-size: 12px;
+
+  line-height: 1.4;
+
+  color: #6b7280;
 
 }
 
