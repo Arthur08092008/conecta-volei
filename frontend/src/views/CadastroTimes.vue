@@ -1,6 +1,5 @@
 <template>
   <div class="app-shell">
-    <Sidebar />
 
     <main class="page">
       <!-- Marca decorativa no canto -->

@@ -1,4 +1,16 @@
 <script setup>
+import { h } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const TOKEN_KEY = 'voleitcc_token'
+
+function sair() {
+  localStorage.removeItem(TOKEN_KEY)
+  router.push('/')
+}
+
 // Ícones inline simples (sem libs externas), mesmo padrão usado no Inicio.vue.
 // Se os seus ícones reais (IconHome, IconTimes, IconTrophy, etc.) tiverem paths
 // diferentes destes, é só substituir o "d" de cada <path> pelo path real que
@@ -26,15 +38,13 @@ function svgIcon(paths) {
   }
 }
 
-import { h } from 'vue'
-
 const IconHome = svgIcon(['M3 9l9-7 9 7', 'M9 22V12h6v10', 'M21 9v11a1 1 0 0 1-1 1h-4', 'M4 9v11a1 1 0 0 0 1 1h4'])
 const IconTimes = svgIcon(['M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2', 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', 'M23 21v-2a4 4 0 0 0-3-3.87', 'M16 3.13a4 4 0 0 1 0 7.75'])
 const IconTrophy = svgIcon(['M8 21h8', 'M12 17v4', 'M7 4h10v5a5 5 0 0 1-10 0V4z', 'M17 5h3a2 2 0 0 1-2 4', 'M7 5H4a2 2 0 0 0 2 4'])
 const IconCalendar = svgIcon(['M8 2v4', 'M16 2v4', 'M3 10h18', 'M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z'])
-const IconTable = svgIcon(['M3 5h18', 'M3 12h18', 'M3 19h18'])
 const IconChecklist = svgIcon(['M9 11l3 3L22 4', 'M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'])
 const IconUser = svgIcon(['M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2', 'M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z'])
+const IconLogout = svgIcon(['M14 3h6a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-6', 'M14 12H3', 'M7 8l-4 4 4 4', 'M10 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4z', 'M10 9v7', 'M10 11l-3 3', 'M10 11l3 3', 'M10 16l-2 4', 'M10 16l3 4'])
 </script>
 
 <template>
@@ -66,7 +76,7 @@ const IconUser = svgIcon(['M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2', 'M12 11a4
         <component :is="IconCalendar" />
         <span>Agendas</span>
       </router-link>
-      
+
       <router-link to="/checklist" class="nav-item" active-class="nav-item-active">
         <component :is="IconChecklist" />
         <span>Checklist</span>
@@ -76,11 +86,25 @@ const IconUser = svgIcon(['M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2', 'M12 11a4
         <component :is="IconUser" />
         <span>Perfil</span>
       </router-link>
+
+      <button type="button" class="nav-item" @click="sair">
+        <component :is="IconLogout" />
+        <span>Sair</span>
+      </button>
     </nav>
   </aside>
 </template>
 
 <style scoped>
+.nav-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
 .sidebar {
   width: 220px;
   min-height: 100vh;

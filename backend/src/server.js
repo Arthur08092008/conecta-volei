@@ -6,7 +6,8 @@ const cors = require('cors');
 // Rotas
 const authRoutes = require('./routes/authRoutes');
 const timeRoutes = require('./routes/timeRoutes');
-const campeonatoRoutes = require('./routes/campeonatoRoutes');
+const campeonatoRoutes = require('./routes/campeonatos');
+const partidasRoutes = require('./routes/partidasRouter');
 
 const app = express();
 
@@ -30,6 +31,9 @@ app.use('/times', timeRoutes);
 
 // Campeonatos
 app.use('/campeonatos', campeonatoRoutes);
+
+// Partidas
+app.use('/partidas', partidasRoutes);
 
 // ==========================================
 // ROTA PRINCIPAL

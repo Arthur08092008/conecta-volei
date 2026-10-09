@@ -9,7 +9,6 @@ import Sidebar from '../components/Sidebar.vue';
 ========================= */
 const carregando = ref(false);
 const erro = ref('');
-const campeonatos = ref([]);
 const campeonatoSelecionado = ref('');
 const partidas = ref([]);
 
@@ -48,8 +47,18 @@ const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2,
 const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 const nomesMeses = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  'Janeiro',
+  'Fevereiro',
+  'Março',
+  'Abril',
+  'Maio',
+  'Junho',
+  'Julho',
+  'Agosto',
+  'Setembro',
+  'Outubro',
+  'Novembro',
+  'Dezembro'
 ];
 
 const nomeMes = computed(() => nomesMeses[mes.value - 1]);
@@ -69,25 +78,6 @@ const dataSelecionadaFormatada = computed(() => {
   });
 });
 
-/* =========================
-   VOLTAR
-========================= */
-function voltar() {
-  window.history.back();
-}
-
-/* =========================
-   CARREGAR CAMPEONATOS
-========================= */
-async function carregarCampeonatos() {
-  try {
-    const resposta = await api.get('/campeonatos');
-    campeonatos.value = Array.isArray(resposta.data) ? resposta.data : [];
-  } catch (e) {
-    console.error('Erro ao carregar campeonatos:', e);
-    campeonatos.value = [];
-  }
-}
 
 /* =========================
    NORMALIZAR PARTIDA
@@ -95,11 +85,24 @@ async function carregarCampeonatos() {
 function normalizarPartida(partida) {
   return {
     ...partida,
-    mandante: partida.mandante ?? partida.time_a ?? '',
-    visitante: partida.visitante ?? partida.time_b ?? '',
+
+    mandante:
+      partida.mandante ??
+      partida.timeA ??
+      partida.time_a ??
+      '',
+
+    visitante:
+      partida.visitante ??
+      partida.timeB ??
+      partida.time_b ??
+      '',
+
     data_jogo:
       partida.data_jogo ??
-      (typeof partida.data === 'string' ? partida.data.slice(0, 10) : '')
+      (typeof partida.data === 'string'
+        ? partida.data.slice(0, 10)
+        : '')
   };
 }
 
@@ -111,7 +114,10 @@ async function carregarPartidas() {
   erro.value = '';
 
   try {
-    const params = { mes: mes.value, ano: ano.value };
+    const params = {
+      mes: mes.value,
+      ano: ano.value
+    };
 
     if (campeonatoSelecionado.value) {
       params.campeonato_id = campeonatoSelecionado.value;
@@ -124,15 +130,17 @@ async function carregarPartidas() {
       : [];
   } catch (e) {
     console.error('Erro ao carregar partidas:', e);
+
     erro.value =
-      e.response?.data?.mensagem || 'Não foi possível carregar as partidas.';
+      e.response?.data?.mensagem ||
+      'Não foi possível carregar as partidas.';
   } finally {
     carregando.value = false;
   }
 }
 
 /* =========================
-   MÊS ANTERIOR / PRÓXIMO
+   MÊS ANTERIOR
 ========================= */
 function mesAnterior() {
   if (mes.value === 1) {
@@ -141,9 +149,13 @@ function mesAnterior() {
   } else {
     mes.value -= 1;
   }
+
   carregarPartidas();
 }
 
+/* =========================
+   PRÓXIMO MÊS
+========================= */
 function mesSeguinte() {
   if (mes.value === 12) {
     mes.value = 1;
@@ -151,6 +163,7 @@ function mesSeguinte() {
   } else {
     mes.value += 1;
   }
+
   carregarPartidas();
 }
 
@@ -159,6 +172,7 @@ function mesSeguinte() {
 ========================= */
 function formatarHorario(horario) {
   if (!horario) return '';
+
   return String(horario).slice(0, 5);
 }
 
@@ -175,12 +189,15 @@ const diasDoMes = computed(() => {
   const celulas = Array(offset).fill(null);
 
   for (let numero = 1; numero <= totalDias; numero++) {
-    const dataStr = `${ano.value}-${String(mes.value).padStart(2, '0')}-${String(numero).padStart(2, '0')}`;
+    const dataStr =
+      `${ano.value}-${String(mes.value).padStart(2, '0')}-${String(numero).padStart(2, '0')}`;
 
     const partidasDoDia = partidas.value
       .filter((p) => p.data_jogo === dataStr)
       .sort((a, b) =>
-        String(a.horario || '').localeCompare(String(b.horario || ''))
+        String(a.horario || '').localeCompare(
+          String(b.horario || '')
+        )
       );
 
     celulas.push({
@@ -231,14 +248,10 @@ function fecharModal() {
 ========================= */
 function selecionarTipoJogo(tipo) {
   novoJogo.value.tipo = tipo;
-
-  if (tipo === 'amistoso') {
-    novoJogo.value.campeonato_id = '';
-  }
 }
 
 /* =========================
-   SALVAR NOVO JOGO
+   SALVAR JOGO
 ========================= */
 async function salvarJogo() {
   salvandoJogo.value = true;
@@ -255,13 +268,18 @@ async function salvarJogo() {
       return;
     }
 
-    if (!novoJogo.value.mandante.trim()) {
-      erroModal.value = 'Informe o time mandante.';
+    if (!novoJogo.value.mandante?.trim()) {
+      erroModal.value = 'Informe o time A.';
       return;
     }
 
-    if (!novoJogo.value.visitante.trim()) {
-      erroModal.value = 'Informe o time visitante.';
+    if (!novoJogo.value.visitante?.trim()) {
+      erroModal.value = 'Informe o time B.';
+      return;
+    }
+
+    if (!novoJogo.value.local?.trim()) {
+      erroModal.value = 'Informe o local da partida.';
       return;
     }
 
@@ -274,31 +292,38 @@ async function salvarJogo() {
     }
 
     const dados = {
-      data_jogo: novoJogo.value.data_jogo,
-      tipo: novoJogo.value.tipo,
-      campeonato_id: null,
-      categoria: novoJogo.value.categoria,
-      modalidade: novoJogo.value.modalidade,
-      mandante: novoJogo.value.mandante.trim(),
-      visitante: novoJogo.value.visitante.trim(),
+      time_a: novoJogo.value.mandante.trim(),
+      time_b: novoJogo.value.visitante.trim(),
+      data: novoJogo.value.data_jogo,
       horario: novoJogo.value.horario,
-      local: novoJogo.value.local ?? ''
+      local: novoJogo.value.local.trim(),
+      tipo: novoJogo.value.tipo,
+      campeonato_id: novoJogo.value.campeonato_id || null,
+      categoria: novoJogo.value.categoria,
+      modalidade: novoJogo.value.modalidade
     };
 
-    console.log('Enviando partida:', dados);
+    console.log(
+      'Enviando partida para API:',
+      JSON.stringify(dados, null, 2)
+    );
 
     const resposta = await api.post('/partidas', dados);
 
     console.log('Partida criada:', resposta.data);
 
-    partidas.value.push(normalizarPartida(resposta.data));
+    partidas.value.push(
+      normalizarPartida(resposta.data)
+    );
 
     fecharModal();
+
   } catch (e) {
     console.error('Erro ao salvar jogo:', e);
     console.error('Resposta do servidor:', e.response?.data);
 
     erroModal.value =
+      e.response?.data?.erro ||
       e.response?.data?.mensagem ||
       e.response?.data?.detalhes ||
       'Não foi possível salvar o jogo.';
@@ -320,13 +345,16 @@ async function excluirJogo(jogo) {
   try {
     await api.delete(`/partidas/${jogo.id}`);
 
-    partidas.value = partidas.value.filter((p) => p.id !== jogo.id);
+    partidas.value = partidas.value.filter(
+      (p) => p.id !== jogo.id
+    );
+
   } catch (e) {
     console.error('Erro ao excluir jogo:', e);
 
     window.alert(
       e.response?.data?.mensagem ||
-        'Não foi possível excluir o jogo. Tente novamente.'
+      'Não foi possível excluir o jogo. Tente novamente.'
     );
   }
 }
@@ -335,47 +363,65 @@ async function excluirJogo(jogo) {
    INICIALIZAÇÃO
 ========================= */
 onMounted(async () => {
-  await carregarCampeonatos();
   await carregarPartidas();
 });
 </script>
 
 <template>
   <div class="agendas-layout">
+
     <Sidebar />
 
     <main class="agendas-main">
+
       <!-- CABEÇALHO -->
       <header class="topo">
-        <button class="btn-voltar" type="button" @click="voltar">
-          <Icon icon="mdi:arrow-left" width="20" />
-          Voltar
-        </button>
 
         <div class="topo-titulo">
+
           <h1>Agenda de jogos</h1>
-          <p>Veja e cadastre as partidas de cada dia do mês.</p>
+
+          <p>
+            Veja e cadastre as partidas de cada dia do mês.
+          </p>
+
         </div>
 
-        <button class="btn-primario" type="button" @click="abrirModalNovoJogo()">
-          <Icon icon="mdi:plus" width="20" />
+        <button
+          class="btn-primario"
+          type="button"
+          @click="abrirModalNovoJogo()"
+        >
+          <Icon
+            icon="mdi:plus"
+            width="20"
+          />
           Novo jogo
         </button>
+
       </header>
 
       <!-- CONTROLES -->
       <section class="controles">
+
         <div class="navegacao-mes">
+
           <button
             class="btn-icone"
             type="button"
             aria-label="Mês anterior"
             @click="mesAnterior"
           >
-            <Icon icon="mdi:chevron-left" width="24" />
+            <Icon
+              icon="mdi:chevron-left"
+              width="24"
+            />
           </button>
 
-          <h2>{{ nomeMes }} <span>{{ ano }}</span></h2>
+          <h2>
+            {{ nomeMes }}
+            <span>{{ ano }}</span>
+          </h2>
 
           <button
             class="btn-icone"
@@ -383,39 +429,91 @@ onMounted(async () => {
             aria-label="Próximo mês"
             @click="mesSeguinte"
           >
-            <Icon icon="mdi:chevron-right" width="24" />
+            <Icon
+              icon="mdi:chevron-right"
+              width="24"
+            />
           </button>
+
         </div>
 
+        <!-- CAMPEONATO -->
         <label class="filtro">
+
           <span>Campeonato</span>
-          <select v-model="campeonatoSelecionado" @change="carregarPartidas">
-            <option value="">Todos os jogos</option>
-            <option v-for="c in campeonatos" :key="c.id" :value="c.id">
-              {{ c.nome }}
+
+          <select
+            v-model="campeonatoSelecionado"
+            @change="carregarPartidas"
+          >
+            <option value="">
+              Todos os jogos
             </option>
           </select>
+
         </label>
+
       </section>
 
       <!-- ERRO -->
-      <div v-if="erro" class="alerta-erro" role="alert">
-        <Icon icon="mdi:alert-circle-outline" width="20" />
+      <div
+        v-if="erro"
+        class="alerta-erro"
+        role="alert"
+      >
+
+        <Icon
+          icon="mdi:alert-circle-outline"
+          width="20"
+        />
+
         <span>{{ erro }}</span>
-        <button type="button" @click="carregarPartidas">Tentar de novo</button>
+
+        <button
+          type="button"
+          @click="carregarPartidas"
+        >
+          Tentar de novo
+        </button>
+
       </div>
 
       <!-- CALENDÁRIO -->
-      <section class="calendario" :class="{ 'is-carregando': carregando }">
-        <div v-if="carregando" class="carregando">Carregando partidas...</div>
+      <section
+        class="calendario"
+        :class="{ 'is-carregando': carregando }"
+      >
+
+        <div
+          v-if="carregando"
+          class="carregando"
+        >
+          Carregando partidas...
+        </div>
 
         <div class="grade-semana">
-          <div v-for="d in diasSemana" :key="d" class="dia-semana">{{ d }}</div>
+
+          <div
+            v-for="d in diasSemana"
+            :key="d"
+            class="dia-semana"
+          >
+            {{ d }}
+          </div>
+
         </div>
 
         <div class="grade-dias">
-          <template v-for="(dia, i) in diasDoMes" :key="i">
-            <div v-if="!dia" class="celula vazia"></div>
+
+          <template
+            v-for="(dia, i) in diasDoMes"
+            :key="i"
+          >
+
+            <div
+              v-if="!dia"
+              class="celula vazia"
+            ></div>
 
             <div
               v-else
@@ -423,9 +521,13 @@ onMounted(async () => {
               :class="{ hoje: dia.data === hojeStr }"
               @click="abrirModalNovoJogo(dia)"
             >
-              <span class="numero">{{ dia.numero }}</span>
+
+              <span class="numero">
+                {{ dia.numero }}
+              </span>
 
               <div class="jogos">
+
                 <div
                   v-for="jogo in dia.partidas"
                   :key="jogo.id"
@@ -434,9 +536,17 @@ onMounted(async () => {
                   :title="`${jogo.mandante} x ${jogo.visitante}${jogo.local ? ' - ' + jogo.local : ''}`"
                   @click.stop
                 >
+
                   <div class="jogo-info">
-                    <strong>{{ formatarHorario(jogo.horario) }}</strong>
-                    <span>{{ jogo.mandante }} x {{ jogo.visitante }}</span>
+
+                    <strong>
+                      {{ formatarHorario(jogo.horario) }}
+                    </strong>
+
+                    <span>
+                      {{ jogo.mandante }} x {{ jogo.visitante }}
+                    </span>
+
                   </div>
 
                   <button
@@ -445,27 +555,59 @@ onMounted(async () => {
                     aria-label="Excluir jogo"
                     @click.stop="excluirJogo(jogo)"
                   >
-                    <Icon icon="mdi:trash-can-outline" width="16" />
+
+                    <Icon
+                      icon="mdi:trash-can-outline"
+                      width="16"
+                    />
+
                   </button>
+
                 </div>
+
               </div>
+
             </div>
+
           </template>
+
         </div>
+
       </section>
 
-      <p v-if="!carregando && !erro && partidas.length === 0" class="vazio">
-        Nenhum jogo em {{ nomeMes.toLowerCase() }}. Clique em um dia para cadastrar.
+      <p
+        v-if="!carregando && !erro && partidas.length === 0"
+        class="vazio"
+      >
+        Nenhum jogo em {{ nomeMes.toLowerCase() }}.
+        Clique em um dia para cadastrar.
       </p>
+
     </main>
 
     <!-- MODAL -->
-    <div v-if="modalAberto" class="modal-fundo" @click.self="fecharModal">
-      <div class="modal" role="dialog" aria-modal="true">
+    <div
+      v-if="modalAberto"
+      class="modal-fundo"
+      @click.self="fecharModal"
+    >
+
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+      >
+
         <header class="modal-topo">
+
           <div>
+
             <h3>Novo jogo</h3>
-            <p v-if="dataSelecionadaFormatada">{{ dataSelecionadaFormatada }}</p>
+
+            <p v-if="dataSelecionadaFormatada">
+              {{ dataSelecionadaFormatada }}
+            </p>
+
           </div>
 
           <button
@@ -474,14 +616,27 @@ onMounted(async () => {
             aria-label="Fechar"
             @click="fecharModal"
           >
-            <Icon icon="mdi:close" width="22" />
+
+            <Icon
+              icon="mdi:close"
+              width="22"
+            />
+
           </button>
+
         </header>
 
         <div class="modal-corpo">
+
+          <!-- TIPO -->
           <div class="campo">
-            <span class="rotulo">Tipo de jogo</span>
+
+            <span class="rotulo">
+              Tipo de jogo
+            </span>
+
             <div class="alternar">
+
               <button
                 type="button"
                 :class="{ ativo: novoJogo.tipo === 'amistoso' }"
@@ -489,6 +644,7 @@ onMounted(async () => {
               >
                 Amistoso
               </button>
+
               <button
                 type="button"
                 :class="{ ativo: novoJogo.tipo === 'campeonato' }"
@@ -496,75 +652,144 @@ onMounted(async () => {
               >
                 Campeonato
               </button>
+
             </div>
+
           </div>
 
+          <!-- CATEGORIA -->
           <label class="campo">
-            <span class="rotulo">Categoria</span>
+
+            <span class="rotulo">
+              Categoria
+            </span>
+
             <select v-model="novoJogo.categoria">
+
               <option>Masculino</option>
               <option>Feminino</option>
               <option>Misto</option>
+
             </select>
+
           </label>
 
+          <!-- DATA E HORÁRIO -->
           <div class="linha">
+
             <label class="campo">
-              <span class="rotulo">Data</span>
-              <input v-model="novoJogo.data_jogo" type="date" />
+
+              <span class="rotulo">
+                Data
+              </span>
+
+              <input
+                v-model="novoJogo.data_jogo"
+                type="date"
+              />
+
             </label>
 
             <label class="campo">
-              <span class="rotulo">Horário</span>
-              <input v-model="novoJogo.horario" type="time" />
+
+              <span class="rotulo">
+                Horário
+              </span>
+
+              <input
+                v-model="novoJogo.horario"
+                type="time"
+              />
+
             </label>
+
           </div>
 
+          <!-- TIMES -->
           <div class="linha">
+
             <label class="campo">
-              <span class="rotulo">Time mandante</span>
+
+              <span class="rotulo">
+                Time mandante
+              </span>
+
               <input
                 v-model="novoJogo.mandante"
                 type="text"
                 placeholder="Ex.: Escola Central"
               />
+
             </label>
 
             <label class="campo">
-              <span class="rotulo">Time visitante</span>
+
+              <span class="rotulo">
+                Time visitante
+              </span>
+
               <input
                 v-model="novoJogo.visitante"
                 type="text"
                 placeholder="Ex.: Colégio Norte"
               />
+
             </label>
+
           </div>
 
+          <!-- MODALIDADE -->
           <label class="campo">
-            <span class="rotulo">Modalidade</span>
+
+            <span class="rotulo">
+              Modalidade
+            </span>
+
             <select v-model="novoJogo.modalidade">
+
               <option>Vôlei de quadra</option>
               <option>Vôlei de praia</option>
               <option>Futevôlei</option>
+
             </select>
+
           </label>
 
+          <!-- LOCAL -->
           <label class="campo">
-            <span class="rotulo">Local (opcional)</span>
+
+            <span class="rotulo">
+              Local
+            </span>
+
             <input
               v-model="novoJogo.local"
               type="text"
               placeholder="Ex.: Ginásio municipal"
             />
+
           </label>
 
-          <p v-if="erroModal" class="erro-modal" role="alert">{{ erroModal }}</p>
+          <p
+            v-if="erroModal"
+            class="erro-modal"
+            role="alert"
+          >
+            {{ erroModal }}
+          </p>
+
         </div>
 
         <footer class="modal-rodape">
-          <button class="btn-secundario" type="button" @click="fecharModal">
+
+          <button
+            class="btn-secundario"
+            type="button"
+            @click="fecharModal"
+          >
             Cancelar
           </button>
+
           <button
             class="btn-primario"
             type="button"
@@ -573,9 +798,13 @@ onMounted(async () => {
           >
             {{ salvandoJogo ? 'Salvando...' : 'Salvar jogo' }}
           </button>
+
         </footer>
+
       </div>
+
     </div>
+
   </div>
 </template>
 
@@ -639,8 +868,7 @@ select:focus-visible {
 }
 
 .btn-primario,
-.btn-secundario,
-.btn-voltar {
+.btn-secundario {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -664,15 +892,13 @@ select:focus-visible {
   cursor: not-allowed;
 }
 
-.btn-secundario,
-.btn-voltar {
+.btn-secundario {
   background: transparent;
   color: var(--quadra-escura);
   border-color: var(--linha);
 }
 
-.btn-secundario:hover,
-.btn-voltar:hover {
+.btn-secundario:hover {
   border-color: var(--quadra);
 }
 

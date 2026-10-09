@@ -11,81 +11,109 @@ import Agendas from '../views/Agendas.vue';
 import Checklist from '../views/Checklist.vue';
 import Perfil from '../views/Perfil.vue';
 
+// Mesma chave usada no login (localStorage.setItem)
+const TOKEN_KEY = 'voleitcc_token';
+
 const routes = [
-  // Login
+  // =========================
+  // ROTAS PÚBLICAS
+  // =========================
   {
     path: '/',
     name: 'login',
     component: Login,
+    meta: { public: true },
   },
-
-  // Cadastro de usuário
   {
     path: '/cadastro',
     name: 'cadastro',
     component: Cadastro,
+    meta: { public: true },
   },
 
-  // Página inicial
+  // =========================
+  // ROTAS PROTEGIDAS
+  // =========================
   {
     path: '/inicio',
     name: 'inicio',
     component: Inicio,
+    meta: { requiresAuth: true },
   },
-
-  // Lista de times
   {
     path: '/times',
     name: 'times',
     component: ListaTimes,
+    meta: { requiresAuth: true },
   },
-
-  // Cadastro de times
   {
     path: '/times/cadastro',
     name: 'cadastro-times',
     component: CadastroTimes,
+    meta: { requiresAuth: true },
   },
-
-  // Campeonatos
   {
     path: '/campeonatos',
     name: 'campeonatos',
     component: Campeonatos,
+    meta: { requiresAuth: true },
   },
-
-  // Cadastro de campeonato
   {
     path: '/campeonatos/cadastro',
     name: 'cadastro-campeonato',
     component: CadastroCampeonato,
+    meta: { requiresAuth: true },
   },
-
-  // Agendas
   {
     path: '/agendas',
     name: 'agendas',
     component: Agendas,
+    meta: { requiresAuth: true },
   },
-
-  // Checklist
   {
     path: '/checklist',
     name: 'checklist',
     component: Checklist,
+    meta: { requiresAuth: true },
   },
-
-  // Perfil
   {
     path: '/perfil',
     name: 'perfil',
     component: Perfil,
+    meta: { requiresAuth: true },
+  },
+
+  // =========================
+  // QUALQUER ROTA INEXISTENTE
+  // =========================
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/',
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+// =========================
+// PROTEÇÃO DAS ROTAS
+// =========================
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem(TOKEN_KEY);
+
+  // Rota protegida sem token: volta para o login
+  if (to.meta.requiresAuth && !token) {
+    return next('/');
+  }
+
+  // Já logado tentando acessar login/cadastro: vai para o início
+  if (to.meta.public && token) {
+    return next('/inicio');
+  }
+
+  next();
 });
 
 export default router;

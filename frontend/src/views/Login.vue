@@ -1,6 +1,5 @@
 <template>
   <div class="login-page">
-    <!-- Formas coloridas de fundo -->
     <div class="shape shape-blue"></div>
     <div class="shape shape-yellow"></div>
 
@@ -44,7 +43,6 @@
         </button>
       </form>
 
-      <!-- Cadastro -->
       <div class="cadastro-area">
         <span>Não possui uma conta?</span>
 
@@ -82,13 +80,21 @@ async function entrar() {
       senha: senha.value,
     });
 
+    if (!resposta.data.token) {
+      erro.value = 'Token de acesso não foi recebido.';
+      return;
+    }
+
     localStorage.setItem(
       'voleitcc_token',
       resposta.data.token
     );
 
-    router.push('/inicio');
+    await router.push('/inicio');
+
   } catch (e) {
+    console.error('Erro no login:', e);
+
     erro.value =
       e.response?.data?.mensagem ||
       'Não foi possível entrar.';
@@ -241,7 +247,6 @@ button:disabled {
   cursor: default;
 }
 
-/* Área de cadastro */
 .cadastro-area {
   margin-top: 20px;
   padding-top: 18px;

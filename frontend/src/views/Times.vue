@@ -7,20 +7,6 @@
         <header class="page-header">
           <h1>Times</h1>
           <p>Gerencie os times cadastrados no sistema</p>
-
-          <!-- BOTÃO VOLTAR -->
-          <button
-            class="btn-voltar"
-            type="button"
-            @click="voltar"
-          >
-            <Icon
-              icon="carbon:return"
-              width="24"
-              height="24"
-            />
-            <span>Voltar</span>
-          </button>
         </header>
 
         <!-- ERRO GERAL -->
@@ -191,7 +177,6 @@
 
 <script>
 import Sidebar from '../components/Sidebar.vue'
-import { Icon } from '@iconify/vue'
 import api from '../services/api'
 
 export default {
@@ -226,10 +211,6 @@ export default {
   },
 
   methods: {
-    voltar() {
-      window.history.back()
-    },
-
     mensagemErro(e, padrao) {
       return e.response?.data?.mensagem || padrao
     },
@@ -414,43 +395,6 @@ export default {
 .page-header p {
   color: #5a6b7b;
   margin: 0;
-}
-
-/* =================================
-   BOTÃO VOLTAR
-================================= */
-
-.btn-voltar {
-  width: 150px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  margin-top: 18px;
-  margin-bottom: 24px;
-
-  padding: 11px 16px;
-
-  border: none;
-  border-radius: 8px;
-
-  background: #6c757d;
-  color: #fff;
-
-  font-size: 14px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s,
-    transform 0.2s;
-}
-
-.btn-voltar:hover {
-  background: #5c636a;
-  transform: translateY(-1px);
 }
 
 /* =================================
@@ -706,10 +650,6 @@ export default {
 @media (max-width: 600px) {
   .times-page {
     padding: 20px;
-  }
-
-  .btn-voltar {
-    width: 100%;
   }
 
   .form-actions {

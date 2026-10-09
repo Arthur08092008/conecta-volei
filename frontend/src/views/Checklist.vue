@@ -10,19 +10,7 @@
             Itens de organização de cada partida
           </p>
 
-          <!-- BOTÃO VOLTAR -->
-          <button
-            class="btn-voltar"
-            type="button"
-            @click="voltar"
-          >
-            <Icon
-              icon="carbon:return"
-              width="24"
-              height="24"
-            />
-            <span>Voltar</span>
-          </button>
+        
         </div>
       </div>
 

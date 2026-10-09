@@ -17,19 +17,7 @@
             {{ times.length }} time(s) cadastrado(s)
           </p>
 
-          <button
-            type="button"
-            class="btn-voltar"
-            @click="voltar"
-          >
-            <Icon
-              icon="carbon:return"
-              width="24"
-              height="24"
-            />
-
-            <span>Voltar</span>
-          </button>
+          
 
         </div>
 
@@ -169,13 +157,7 @@ const times = ref([]);
 const carregando = ref(true);
 const erro = ref('');
 
-/* ================================
-   VOLTAR
-================================ */
 
-function voltar() {
-  window.history.back();
-}
 
 /* ================================
    CARREGAR TIMES
@@ -304,36 +286,6 @@ h1 {
   font-size: 14px;
 }
 
-/* ================================
-   VOLTAR
-================================ */
-
-.btn-voltar {
-  width: 150px;
-  margin-top: 18px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  padding: 11px 16px;
-
-  border: none;
-  border-radius: 8px;
-
-  background: #6c757d;
-  color: white;
-
-  font-size: 14px;
-  font-weight: 700;
-
-  cursor: pointer;
-}
-
-.btn-voltar:hover {
-  background: #5c636a;
-}
 
 /* ================================
    NOVO TIME
@@ -546,9 +498,6 @@ td {
     width: 100%;
   }
 
-  .btn-voltar {
-    width: 100%;
-  }
 
   .btn-novo {
     width: 100%;

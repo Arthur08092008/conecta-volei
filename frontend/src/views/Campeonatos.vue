@@ -14,24 +14,11 @@
           <h1>Campeonatos</h1>
 
           <p>
-            {{ campeonatos.length }} campeonato(s) público(s) cadastrado(s)
+            {{ publicos.length }} público(s) •
+            {{ meusPrivados.length }} privado(s) criado(s) por você
           </p>
 
-          <!-- BOTÃO VOLTAR -->
-          <button
-            class="btn-voltar"
-            type="button"
-            @click="voltar"
-          >
-            <Icon
-              icon="carbon:return"
-              width="24"
-              height="24"
-            />
-
-            <span>Voltar</span>
-          </button>
-
+          
         </div>
 
         <!-- NOVO CAMPEONATO -->
@@ -50,7 +37,7 @@
         v-if="carregando"
         class="msg"
       >
-        Carregando campeonatos públicos...
+        Carregando campeonatos...
       </p>
 
       <!-- ERRO -->
@@ -67,11 +54,12 @@
         class="card"
       >
 
-        <table v-if="campeonatos.length > 0">
+        <table v-if="campeonatosVisiveis.length > 0">
 
           <thead>
             <tr>
               <th>NOME</th>
+              <th>VISIBILIDADE</th>
               <th>PERÍODO</th>
               <th>FORMATO</th>
               <th>Nº EQUIPES</th>
@@ -83,13 +71,23 @@
           <tbody>
 
             <tr
-              v-for="c in campeonatos"
+              v-for="c in campeonatosVisiveis"
               :key="c.id"
             >
 
               <!-- NOME -->
               <td class="nome-cell">
                 {{ c.nome }}
+              </td>
+
+              <!-- VISIBILIDADE -->
+              <td>
+                <span
+                  class="badge"
+                  :class="c.publico ? 'badge-blue' : 'badge-dark'"
+                >
+                  {{ c.publico ? 'Público' : 'Privado' }}
+                </span>
               </td>
 
               <!-- PERÍODO -->
@@ -105,30 +103,24 @@
 
               <!-- FORMATO -->
               <td>
-
                 <span class="badge badge-gold">
                   {{ c.formato }}
                 </span>
-
               </td>
 
               <!-- EQUIPES -->
               <td class="equipes-cell">
-
                 {{ c.max_equipes }} equipes
-
               </td>
 
               <!-- STATUS -->
               <td>
-
                 <span
                   class="badge"
                   :class="classeStatus(c.status)"
                 >
                   {{ c.status }}
                 </span>
-
               </td>
 
               <!-- AÇÕES -->
@@ -136,7 +128,9 @@
 
                 <div class="actions-cell">
 
+                  <!-- só aparece nos campeonatos criados por você -->
                   <button
+                    v-if="c.eh_meu"
                     class="btn-excluir"
                     type="button"
                     @click="excluirCampeonato(c.id)"
@@ -154,7 +148,7 @@
 
         </table>
 
-        <!-- NENHUM CAMPEONATO PÚBLICO -->
+        <!-- NENHUM CAMPEONATO -->
         <div
           v-else
           class="empty-state"
@@ -164,11 +158,11 @@
           </div>
 
           <h3>
-            Nenhum campeonato público
+            Nenhum campeonato encontrado
           </h3>
 
           <p>
-            Ainda não existem campeonatos publicados.
+            Não há campeonatos públicos nem privados criados por você.
           </p>
 
         </div>
@@ -209,13 +203,64 @@ export default {
 
   },
 
+
+  computed: {
+
+    // Públicos: de todos os usuários
+    publicos() {
+
+      return this.campeonatos.filter(
+        c => c.publico
+      )
+
+    },
+
+    // Privados: o servidor só devolve os que você criou
+    meusPrivados() {
+
+      return this.campeonatos.filter(
+        c => !c.publico
+      )
+
+    },
+
+    // Seus privados primeiro, depois os públicos
+    campeonatosVisiveis() {
+
+      return [
+        ...this.meusPrivados,
+        ...this.publicos
+      ]
+
+    }
+
+  },
+
+
   mounted() {
 
     this.carregarCampeonatos()
 
   },
 
+
   methods: {
+
+    // ==========================================
+    // CABEÇALHOS COM O TOKEN DO LOGIN
+    // ==========================================
+
+    cabecalhos() {
+
+      const token =
+        localStorage.getItem('voleitcc_token')
+
+      return token
+        ? { Authorization: `Bearer ${token}` }
+        : {}
+
+    },
+
 
     // ==========================================
     // VOLTAR
@@ -241,7 +286,10 @@ export default {
       try {
 
         const resposta = await fetch(
-          'http://localhost:3000/campeonatos'
+          'http://localhost:3000/campeonatos',
+          {
+            headers: this.cabecalhos()
+          }
         )
 
         if (!resposta.ok) {
@@ -252,21 +300,8 @@ export default {
 
         }
 
-        const dados = await resposta.json()
-
-        /*
-         * MOSTRA SOMENTE CAMPEONATOS PÚBLICOS
-         *
-         * A API deve retornar:
-         *
-         * publico: true
-         *
-         * para campeonatos públicos.
-         */
-
-        this.campeonatos = dados.filter(
-          campeonato => campeonato.publico === true
-        )
+        // O servidor já devolve: públicos + privados do usuário
+        this.campeonatos = await resposta.json()
 
       } catch (e) {
 
@@ -308,7 +343,8 @@ export default {
         const resposta = await fetch(
           `http://localhost:3000/campeonatos/${id}`,
           {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: this.cabecalhos()
           }
         )
 
@@ -320,15 +356,10 @@ export default {
 
         }
 
-        /*
-         * Remove o campeonato da tela
-         * depois da exclusão.
-         */
-
+        // Remove o campeonato da tela
         this.campeonatos =
           this.campeonatos.filter(
-            campeonato =>
-              campeonato.id !== id
+            c => c.id !== id
           )
 
       } catch (e) {
@@ -391,16 +422,18 @@ export default {
 
     classeStatus(status) {
 
-      if (
-        status === 'Em andamento'
-      ) {
+      const s =
+        (status || '').toLowerCase()
+
+      if (s === 'em andamento') {
 
         return 'badge-green'
 
       }
 
       if (
-        status === 'Encerrado'
+        s === 'finalizado' ||
+        s === 'encerrado'
       ) {
 
         return 'badge-gray'
@@ -425,24 +458,11 @@ export default {
 ================================= */
 
 .layout {
-
   display: flex;
-
   min-height: 100vh;
-
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Helvetica,
-    Arial,
-    sans-serif;
-
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: #f4f5f9;
-
   color: #1a1a2e;
-
 }
 
 
@@ -451,17 +471,11 @@ export default {
 ================================= */
 
 .main-content {
-
   flex: 1;
-
   min-width: 0;
-
   padding: 40px 48px;
-
   box-sizing: border-box;
-
   overflow-x: auto;
-
 }
 
 
@@ -470,50 +484,29 @@ export default {
 ================================= */
 
 .page-header {
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: flex-start;
-
   margin-bottom: 28px;
-
 }
-
 
 .header-info {
-
   display: flex;
-
   flex-direction: column;
-
   align-items: flex-start;
-
 }
-
 
 .page-header h1 {
-
   font-size: 32px;
-
   font-weight: 800;
-
   margin: 0 0 6px 0;
-
   color: #101c46;
-
 }
 
-
 .page-header p {
-
   margin: 0;
-
   color: #6b7280;
-
   font-size: 15px;
-
 }
 
 
@@ -522,48 +515,26 @@ export default {
 ================================= */
 
 .btn-voltar {
-
   width: 150px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   gap: 8px;
-
   margin-top: 18px;
-
   padding: 11px 16px;
-
   border: none;
-
   border-radius: 8px;
-
   background: #6c757d;
-
   color: #fff;
-
   font-size: 14px;
-
   font-weight: 700;
-
   cursor: pointer;
-
-  transition:
-    background 0.2s,
-    transform 0.2s;
-
+  transition: background 0.2s, transform 0.2s;
 }
 
-
 .btn-voltar:hover {
-
   background: #5c636a;
-
   transform: translateY(-1px);
-
 }
 
 
@@ -572,32 +543,19 @@ export default {
 ================================= */
 
 .btn-primary {
-
   background: #101c46;
-
   color: #fff;
-
   border: none;
-
   padding: 14px 22px;
-
   border-radius: 10px;
-
   font-size: 15px;
-
   font-weight: 700;
-
   cursor: pointer;
-
   white-space: nowrap;
-
 }
 
-
 .btn-primary:hover {
-
   background: #16224f;
-
 }
 
 
@@ -606,15 +564,10 @@ export default {
 ================================= */
 
 .card {
-
   background: #fff;
-
   border-radius: 14px;
-
   overflow: hidden;
-
   border: 1px solid #e7e8ef;
-
 }
 
 
@@ -623,48 +576,28 @@ export default {
 ================================= */
 
 table {
-
   width: 100%;
-
   border-collapse: collapse;
-
 }
-
 
 thead th {
-
   text-align: left;
-
   font-size: 12px;
-
   font-weight: 700;
-
   color: #6b7280;
-
   padding: 18px 24px;
-
   background: #fafafc;
-
   border-bottom: 1px solid #e7e8ef;
-
 }
-
 
 tbody td {
-
   padding: 18px 24px;
-
   font-size: 15px;
-
   border-bottom: 1px solid #e7e8ef;
-
 }
 
-
 tbody tr:last-child td {
-
   border-bottom: none;
-
 }
 
 
@@ -673,21 +606,14 @@ tbody tr:last-child td {
 ================================= */
 
 .nome-cell {
-
   font-weight: 700;
-
   color: #101c46;
-
 }
-
 
 .periodo-cell,
 .equipes-cell {
-
   color: #6b7280;
-
   font-size: 14px;
-
 }
 
 
@@ -696,55 +622,42 @@ tbody tr:last-child td {
 ================================= */
 
 .badge {
-
   display: inline-block;
-
   padding: 6px 14px;
-
   border-radius: 20px;
-
   font-size: 13px;
-
   font-weight: 700;
-
   white-space: nowrap;
-
 }
-
 
 .badge-purple {
-
   background: #e7e6fb;
-
   color: #4b3fd1;
-
 }
-
 
 .badge-green {
-
   background: #e3f8ea;
-
   color: #1f9d55;
-
 }
-
 
 .badge-gray {
-
   background: #eef0f4;
-
   color: #6b7280;
-
 }
 
-
 .badge-gold {
-
   background: #fdf1dc;
-
   color: #a06600;
+}
 
+.badge-blue {
+  background: #e0efff;
+  color: #1d6fd1;
+}
+
+.badge-dark {
+  background: #101c46;
+  color: #fff;
 }
 
 
@@ -753,39 +666,23 @@ tbody tr:last-child td {
 ================================= */
 
 .actions-cell {
-
   display: flex;
-
   justify-content: flex-end;
-
 }
-
 
 .btn-excluir {
-
   background: #fde7e9;
-
   color: #d1435b;
-
   border: none;
-
   padding: 9px 16px;
-
   border-radius: 8px;
-
   font-size: 14px;
-
   font-weight: 700;
-
   cursor: pointer;
-
 }
 
-
 .btn-excluir:hover {
-
   background: #f8d5d9;
-
 }
 
 
@@ -794,42 +691,25 @@ tbody tr:last-child td {
 ================================= */
 
 .empty-state {
-
   padding: 70px 24px;
-
   text-align: center;
-
   color: #6b7280;
-
 }
-
 
 .empty-icon {
-
   font-size: 48px;
-
   margin-bottom: 12px;
-
 }
-
 
 .empty-state h3 {
-
   margin: 0 0 8px;
-
   color: #101c46;
-
   font-size: 20px;
-
 }
 
-
 .empty-state p {
-
   margin: 0;
-
   color: #6b7280;
-
 }
 
 
@@ -838,18 +718,12 @@ tbody tr:last-child td {
 ================================= */
 
 .msg {
-
   padding: 24px;
-
   color: #6b7280;
-
 }
 
-
 .msg.erro {
-
   color: #d1435b;
-
 }
 
 
@@ -860,57 +734,34 @@ tbody tr:last-child td {
 @media (max-width: 900px) {
 
   .main-content {
-
     padding: 24px;
-
   }
 
 }
 
-
 @media (max-width: 700px) {
 
   .page-header {
-
     flex-direction: column;
-
     gap: 16px;
-
   }
-
 
   .header-info {
-
     width: 100%;
-
   }
 
-
-  .btn-voltar {
-
-    width: 100%;
-
-  }
 
 
   .btn-primary {
-
     width: 100%;
-
   }
-
 
   .card {
-
     overflow-x: auto;
-
   }
 
-
   table {
-
-    min-width: 700px;
-
+    min-width: 760px;
   }
 
 }
