@@ -1,8 +1,6 @@
 <template>
   <div class="app-shell">
 
-    <Sidebar />
-
     <main class="content">
 
       <div class="fundo">
