@@ -45,6 +45,9 @@ app.get('/', (req, res) => {
   });
 });
 
+app.use('/api', rotas); // quando a vercel mantém o prefixo /api
+app.use('/', rotas);
+
 // ==========================================
 // SERVIDOR
 // ==========================================
